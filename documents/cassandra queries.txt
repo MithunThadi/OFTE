@@ -1,0 +1,7 @@
+CREATE KEYSPACE ofte WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 3};   
+
+CREATE TABLE monitor(monitor_name text PRIMARYKEY,monitor_status text,thread_status text);
+
+CREATE TABLE monitor_transfer(transfer_id text PRIMARYKEY,job_name text,monitor_name text,source_file text,target_file text,transfer_status text);
+
+CREATE TABLE transfer_event(transfer_id text PRIMARYKEY,monitor_name text,producer_key text,consumer_key text);
