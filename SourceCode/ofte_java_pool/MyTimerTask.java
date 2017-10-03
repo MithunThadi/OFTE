@@ -15,7 +15,7 @@ import com.datastax.driver.core.Session;
 
 public class MyTimerTask extends TimerTask {
 	static Map<String, String> metaDataMap1;
-	static SimpleDateFormat sdf = new SimpleDateFormat("ddHHmmss");
+	static SimpleDateFormat simpledateFormat = new SimpleDateFormat("ddHHmmss");
 	int counter = 0, previousList = 0;
 	File file;
 	String[] paths;
@@ -70,7 +70,7 @@ public class MyTimerTask extends TimerTask {
 		paths = file.list();
 		previousList = filesList.size();
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-		Long newTime = Long.parseLong(sdf.format(timestamp));
+		Long currentTime = Long.parseLong(simpledateFormat.format(timestamp));
 		if (previousList != 0) {
 			for (int i = 0; i < x; i++) {
 				System.out.println("list size is " + previousList);
@@ -79,10 +79,10 @@ public class MyTimerTask extends TimerTask {
 					if ((filesList.get(j)).toString().equals(paths[i].toString())) {
 						System.out.println("if loop: " + (filesList.get(j)).toString());
 						File file = new File(metaDataMap1.get("sourceDirectory") + paths[i].toString());
-						String lastMidifie = sdf.format(file.lastModified());
-						Long lastMidified = Long.parseLong(lastMidifie);
-						boolean b = (lastMidified >= (newTime - timed)) && (lastMidified < newTime);
-						if (((lastMidified >= (newTime - timed)) && (lastMidified < newTime))) {
+						String lastStringModified = simpledateFormat.format(file.lastModified());
+						Long lastModified = Long.parseLong(lastStringModified);
+						boolean b = (lastModified >= (currentTime - timed)) && (lastModified < currentTime);
+						if (((lastModified >= (currentTime - timed)) && (lastModified < currentTime))) {
 							continue;
 						} else {
 
@@ -125,12 +125,12 @@ public class MyTimerTask extends TimerTask {
 				System.out.println(transferId);
 				transferMetaData.put("transferId", transferId);
 				transferMetaData.put("sourceFile", sourceFile);
-
-				DBOperations.started(DBOperations.connectCassandra(), metaDataMap1.get("monitorName"));
+				transferMetaData.put("destinationFile", "");
+				DBOperations.started(session, metaDataMap1.get("monitorName"));
 				DBOperations.transferDetails(session, metaDataMap1, transferMetaData);
 				DBOperations.transferEventDetails(session, metaDataMap1, transferMetaData);
-
-				pool.execute(new WorkerThread(sourceFile, metaDataMap1, transferMetaData));
+				session.close();
+				pool.execute(new WorkerThread(metaDataMap1, transferMetaData));
 
 			}
 		}

@@ -32,12 +32,11 @@ public class FilesProcessor {
 	static ZkClient zkClient = new ZkClient("172.17.3.121:2181", 10000, 10000, ZKStringSerializer$.MODULE$);
 	static ConsumerConnector consumerConnector = null;
 	// private final static byte PART_SIZE = 120;
-	public Map<String, String> transferMetaData1;
-
 	public int publishCount = 0;
 	public int subscribeCount = 0;
 
-	public void publish(String TOPIC, String Key, String Message, Map<String, String> metadata) {
+	public void publish(String TOPIC, String Key, String Message, Map<String, String> metadata,
+			Map<String, String> transferMetaData) {
 
 		long timestamp = System.currentTimeMillis();
 		System.out.println("setting zkclient");
@@ -68,23 +67,26 @@ public class FilesProcessor {
 		publishCount++;
 		String incrementPublish = Integer.toString(publishCount);
 		// data base code to update publishCount in transfer_event
-		transferMetaData1.put("incrementPublish", incrementPublish);
+		transferMetaData.put("incrementPublish", incrementPublish);
 		Session session = DBOperations.connectCassandra();
-		DBOperations.updateTransferEventPublishDetails(session, transferMetaData1);
+		DBOperations.updateTransferEventPublishDetails(session, transferMetaData);
 		producer.close();
 		Lock lock = new ReentrantLock();
 		lock.lock();
-		consume(TOPIC, metadata, session);
+		consume(TOPIC, metadata, session, transferMetaData);
 		System.out.println("Consumed Successfully: " + TOPIC);
-		DBOperations.updateTransferDetails(session, transferMetaData1, metadata);
+		DBOperations.updateTransferDetails(session, transferMetaData, metadata);
 		System.out.println("updated cass: " + TOPIC);
 		session.close();
+		session.closeAsync();
 		lock.unlock();
 		System.out.println("unlocking");
 
 	}
 
-	public void consume(String TOPIC, Map<String, String> metadata, Session session) {
+	public void consume(String TOPIC, Map<String, String> metadata, Session session,
+			Map<String, String> transferMetaData) {
+
 		Map<String, Integer> topicCount = new HashMap<String, Integer>();
 		Properties props = new Properties();
 		props.put("zookeeper.connect", "172.17.3.121:2181");
@@ -114,7 +116,7 @@ public class FilesProcessor {
 		List<KafkaStream<byte[], byte[]>> kStreamList = consumerStreams.get(TOPIC);
 		for (final KafkaStream<byte[], byte[]> kStreams : kStreamList) {
 			ConsumerIterator<byte[], byte[]> consumerIte = kStreams.iterator();
-			transferMetaData1.put("destinationFile", metadata.get("destinationDirectory") + "\\" + TOPIC);
+			transferMetaData.put("destinationFile", metadata.get("destinationDirectory") + "\\" + TOPIC);
 			FileWriter destinationFileWriter;
 			while (consumerIte.hasNext()) {
 				try {
@@ -122,10 +124,11 @@ public class FilesProcessor {
 							new File(metadata.get("destinationDirectory") + "\\" + TOPIC), true);
 					destinationFileWriter.write(new String(consumerIte.next().message()));
 					destinationFileWriter.close();
-					transferMetaData1.put("incrementConsumer", Integer.toString(subscribeCount++));
-					DBOperations.updateTransferEventConsumeDetails(session, transferMetaData1);
+					transferMetaData.put("incrementConsumer", Integer.toString(subscribeCount++));
+					DBOperations.updateTransferEventConsumeDetails(session, transferMetaData);
 					consumerConnector.shutdown();
 					System.out.println("done for : " + TOPIC);
+					break;
 				} catch (Exception e) {
 					System.out.println(e);
 				}
@@ -156,7 +159,6 @@ public class FilesProcessor {
 	}
 
 	public void getMessages(String sPath1, Map<String, String> metadata, Map<String, String> transferMetaData) {
-		transferMetaData1 = transferMetaData;
 
 		String delimiter = "\\\\";
 		File inputFile = new File(sPath1);
@@ -190,7 +192,7 @@ public class FilesProcessor {
 				System.out.println(sfile);
 				Lock lock = new ReentrantLock();
 				lock.lock();
-				publish(sfile, Key, new String(byteChunkPart), metadata);
+				publish(sfile, Key, new String(byteChunkPart), metadata, transferMetaData);
 				lock.unlock();
 				System.out.println("completed for thread: " + sfile);
 
