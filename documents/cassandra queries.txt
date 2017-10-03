@@ -5,3 +5,4 @@ CREATE TABLE monitor(monitor_name text PRIMARY KEY,monitor_status text,thread_st
 CREATE TABLE monitor_transfer(transfer_id text PRIMARY KEY,job_name text,monitor_name text,source_file text,target_file text,transfer_status text);
 
 CREATE TABLE transfer_event(transfer_id text PRIMARY KEY,monitor_name text,producer_key text,consumer_key text);
+
