@@ -1,23 +1,26 @@
-package com.ofte;
+package commm;
+
+import java.util.Map;
 
 public class VariablesSubstitution {
 
-	public static void main(String args[]) {
-		// #{FileName(,,1)}
-		String source;
-		String FileName = "sample.te.st.doc";
-		String FilePath = "D:\\abc\\def\\ghi\\sample.test1.doc";
-		String s = "#{FilePath(.,1)}\\#{FileName(.,1)}.sadfa.#{FileName(.,4)}";
-		for (int i = 0; i < s.length(); i++) {
-			if (s.charAt(i) == '#') {
+	public static String variableSubstitutor(Map<String, String> transferMetaDataMap, String sourceFilePattern){ 
+		// public static MetadataMap variableSubstitutor(MetaDataMap
+		// transferMetaDataMap){
+
+		String FileName = transferMetaDataMap.get("FileName");
+		String FilePath = transferMetaDataMap.get("FilePath");
+		
+		for (int i = 0; i < sourceFilePattern.length(); i++) {
+			if (sourceFilePattern.charAt(i) == '#') {
 				//
-				switch (s.substring(i + 2, s.indexOf("("))) {
+				switch (sourceFilePattern.substring(i + 2, sourceFilePattern.indexOf("("))) {
 				case "FileName":
-					s = replacer(s, FileName, i);
-					System.out.println(s);
+					sourceFilePattern = replacer(sourceFilePattern, FileName, i);
+					System.out.println(sourceFilePattern);
 					break;
 				case "FilePath":
-					s = replacer(s, FilePath, i);
+					sourceFilePattern = replacer(sourceFilePattern, FilePath, i);
 					break;
 				default:
 					break;
@@ -25,19 +28,21 @@ public class VariablesSubstitution {
 			}
 
 		}
-		System.out.println(s);
+		System.out.println(sourceFilePattern);
+		return sourceFilePattern;
+		
 	}
 
-	public static String replacer(String source, String variable, int i) {
-		String delimiter = source.substring(source.indexOf("(") + 1, source.indexOf("(") + 2);
+	public static String replacer(String sourceFilePattern, String fileNameORfilePath, int i) {
+		String delimiter = sourceFilePattern.substring(sourceFilePattern.indexOf("(") + 1, sourceFilePattern.indexOf("(") + 2);
 		if (delimiter.equalsIgnoreCase(".")) {
 			delimiter = "\\.";
 		} else if (delimiter.equalsIgnoreCase("\\")) {
 			delimiter = "\\\\";
 		}
-		int value = Integer.parseInt(source.substring(source.indexOf("(") + 3, source.indexOf("(") + 4));
-		String array[] = variable.split(delimiter);
-		System.out.println(source.substring(i, source.indexOf("}") + 1) + " " + array[value - 1]);
-		return source.replace(source.substring(i, source.indexOf("}") + 1), array[value - 1]);
+		int tokenValue = Integer.parseInt(sourceFilePattern.substring(sourceFilePattern.indexOf("(") + 3, sourceFilePattern.indexOf("(") + 4));
+		String fileArray[] = fileNameORfilePath.split(delimiter);
+		System.out.println(sourceFilePattern.substring(i, sourceFilePattern.indexOf("}") + 1) + " " + fileArray[tokenValue - 1]);
+		return sourceFilePattern.replace(sourceFilePattern.substring(i, sourceFilePattern.indexOf("}") + 1), fileArray[tokenValue - 1]);
 	}
 }

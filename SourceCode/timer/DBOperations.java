@@ -1,5 +1,6 @@
-package timer;
+package commm;
 
+import java.sql.Timestamp;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -20,177 +21,220 @@ public class DBOperations {
 	 * 
 	 * @param session
 	 */
+	static Timestamp timeStamp =new Timestamp(System.currentTimeMillis());
 
+	public static String transferStatusCheck(Session session, Map<String, String> transferMetaData2) {
+		// TODO Auto-generated method stub
+		String transferStatus = null;
+		
+//		String query123 = "select transfer_status from monitor_transfer where transfer_id ='"+transferMetaData2.get("transferId")+"';";
+		ResultSet result = session.execute("select transfer_status from monitor_transfer where transfer_id ='"+transferMetaData2.get("transferId")+"';");
+		for(Row row : result) {
+			transferStatus = row.getString("transfer_status");
+		}
+		
+		return transferStatus;
+	}
+	public static String getSourceFilePath(Session session, Map<String, String> transferMetaData2) {
+		// TODO Auto-generated method stub
+		
+		String sourceFile = null;
+		
+//		String query143 = "select source_file from monitor_transfer where transfer_id ='"+transferMetaData2.get("transferId")+"';";
+		ResultSet result = session.execute("select source_file from monitor_transfer where transfer_id ='"+transferMetaData2.get("transferId")+"';");
+		for(Row row : result) {
+			sourceFile = row.getString("source_file");
+		}
+		
+		return sourceFile;
+	}
 	public static void starting(Session session, String Monitor_name) {
 		// Insert status as starting,created
 
-		String cqlStatementC = "INSERT INTO prakash.Monitor(monitor_name,thread_status,monitor_status) VALUES ('"
-				+ Monitor_name + "','creating','starting' );";
-		session.execute(cqlStatementC);
+//		String cqlStatementC = "INSERT INTO Monitor(monitor_name,thread_status,monitor_status,current_timestamp) VALUES ('"
+//				+ Monitor_name + "','creating','starting','"+timeStamp+"' );";
+		session.execute("INSERT INTO Monitor(monitor_name,thread_status,monitor_status,current_timestamp) VALUES ('"
+				+ Monitor_name + "','creating','starting','"+timeStamp+"' );");
 		// DBOperations.started(session, Monitor_name);
 	}
 
 	public static void started(Session session,String Monitor_name) {
 		// update status with started,started
-		String cqlStatementU = "UPDATE prakash.Monitor SET thread_status = 'started' where monitor_name = '"
-				+ Monitor_name + "';";
-		session.execute(cqlStatementU);
+//		String cqlStatementU = "UPDATE Monitor SET thread_status = 'started' where monitor_name = '"
+//				+ Monitor_name + "';";
+		session.execute("UPDATE Monitor SET thread_status = 'started' where monitor_name = '"
+				+ Monitor_name + "';");
 
-		String cqlStatementU1 = "UPDATE prakash.Monitor SET monitor_status = 'started' where monitor_name = '"
-				+ Monitor_name + "';";
-		session.execute(cqlStatementU1);
+//		String cqlStatementU1 = "UPDATE Monitor SET monitor_status = 'started' where monitor_name = '"
+//				+ Monitor_name + "';";
+		session.execute("UPDATE Monitor SET monitor_status = 'started' where monitor_name = '"
+				+ Monitor_name + "';");
 
 		// session.close();
 	}
 
 	public static void stopped(Session session, String Monitor_name) {
 		// update status with stopped,stopped
-		String cqlStatementU = "UPDATE prakash.Monitor SET thread_status = 'stopped' where monitor_name = '"
-				+ Monitor_name + "';";
-		session.execute(cqlStatementU);
+//		String cqlStatementU = "UPDATE Monitor SET thread_status = 'stopped' where monitor_name = '"
+//				+ Monitor_name + "';";
+		session.execute("UPDATE Monitor SET thread_status = 'stopped' where monitor_name = '"
+				+ Monitor_name + "';");
 
-		String cqlStatementU1 = "UPDATE prakash.Monitor SET monitor_status = 'stopped' where monitor_name = '"
-				+ Monitor_name + "';";
-		session.execute(cqlStatementU1);
+//		String cqlStatementU1 = "UPDATE Monitor SET monitor_status = 'stopped' where monitor_name = '"
+//				+ Monitor_name + "';";
+		session.execute("UPDATE Monitor SET monitor_status = 'stopped' where monitor_name = '"
+				+ Monitor_name + "';");
 		session.close();
 	}
 
 	public static void deleting(Session session, String Monitor_name) {
 		// deleting, deleted
 
-		String cqlStatementU = "UPDATE prakash.Monitor SET Monitor_status = 'deleted' where monitor_name = '"
-				+ Monitor_name + "';";
-		session.execute(cqlStatementU);
+//		String cqlStatementU = "UPDATE Monitor SET Monitor_status = 'deleted' where monitor_name = '"
+//				+ Monitor_name + "';";
+		session.execute("UPDATE Monitor SET Monitor_status = 'deleted' where monitor_name = '"
+				+ Monitor_name + "';");
 
-		String cqlStatementU1 = "UPDATE prakash.Monitor SET thread_status = 'deleting' where monitor_name = '"
-				+ Monitor_name + "';";
-		session.execute(cqlStatementU1);
+//		String cqlStatementU1 = "UPDATE Monitor SET thread_status = 'deleting' where monitor_name = '"
+//				+ Monitor_name + "';";
+		session.execute( "UPDATE Monitor SET thread_status = 'deleting' where monitor_name = '"
+				+ Monitor_name + "';");
 		// session.close();
 	}
 
 	public static void deletingThread(Session session, String Monitor_name) {
 		// deleting, deleted
 
-		String cqlStatementU = "UPDATE prakash.Monitor SET Monitor_status = 'deleted' where monitor_name = '"
-				+ Monitor_name + "';";
-		session.execute(cqlStatementU);
+//		String cqlStatementU = "UPDATE Monitor SET Monitor_status = 'deleted' where monitor_name = '"
+//				+ Monitor_name + "';";
+		session.execute("UPDATE Monitor SET Monitor_status = 'deleted' where monitor_name = '"
+				+ Monitor_name + "';");
 
-		String cqlStatementU1 = "UPDATE prakash.Monitor SET thread_status = 'deleted' where monitor_name = '"
-				+ Monitor_name + "';";
-		session.execute(cqlStatementU1);
+//		String cqlStatementU1 = "UPDATE Monitor SET thread_status = 'deleted' where monitor_name = '"
+//				+ Monitor_name + "';";
+		session.execute("UPDATE Monitor SET thread_status = 'deleted' where monitor_name = '"
+				+ Monitor_name + "';");
 		// session.close();
 	}
 	
 	public static void deleted(Session session, String Monitor_name) {
 		// deleted, deleted
 
-		String cqlStatementD = "DELETE FROM prakash.Monitor "
-				+ "WHERE Monitor_name = '" +  Monitor_name+ "';";
-		session.execute(cqlStatementD);
+//		String cqlStatementD = "DELETE FROM Monitor "
+//				+ "WHERE Monitor_name = '" +  Monitor_name+ "';";
+		session.execute("DELETE FROM Monitor "
+				+ "WHERE Monitor_name = '" +  Monitor_name+ "';");
 
 	}
 	public static void transferDetails(Session session,Map<String,String> map, Map<String, String> transferMetaData)
 	{
-		String cqlStatementinsert="insert into monitor_transfer(monitor_name,job_name,source_file,transfer_id) "
-				+ "values("+"'"+map.get("monitorName")+"','"+map.get("jobName")+"'"+",'"+transferMetaData.get("sourceFile").replace("\\", "/")+"'"+",'"+transferMetaData.get("transferId")+"');";
-		session.execute(cqlStatementinsert);
+//		System.out.println(map);
+//		System.out.println(transferMetaData);
+//		String cqlStatementinsert="insert into monitor_transfer(monitor_name,job_name,source_file,transfer_id,current_timestamp) "
+//				+ "values("+"'"+map.get("monitorName")+"','"+map.get("jobName")+"'"+",'"+transferMetaData.get("sourceFileName").replace("\\", "/")+"'"+",'"+transferMetaData.get("transferId")+"'"+",'"+timeStamp+"');";
+		session.execute("insert into monitor_transfer(monitor_name,job_name,source_file,transfer_id,current_timestamp) "
+				+ "values("+"'"+map.get("monitorName")+"','"+map.get("jobName")+"'"+",'"+transferMetaData.get("sourceFileName").replace("\\", "/")+"'"+",'"+transferMetaData.get("transferId")+"'"+",'"+timeStamp+"');");
 		
 	}
 	public static void updateTransferDetails(Session session, Map<String, String> transferMetaData1, Map<String, String> metadata)
 	{
-		String cqlstatementu="update monitor_transfer set target_file='"
-	                                       +transferMetaData1.get("destinationFile").replace("\\", "/")+"' "+"where transfer_id= '" +transferMetaData1.get("transferId")+"';";
-		session.execute(cqlstatementu);
-		String cqlstatementu2="update monitor_transfer set transfer_status ='success' where transfer_id= '" +transferMetaData1.get("transferId")+"';";
-		session.execute(cqlstatementu2);
+//		String cqlstatementu="update monitor_transfer set target_file='"
+//	                                       +transferMetaData1.get("destinationFile").replace("\\", "/")+"' "+"where transfer_id= '" +transferMetaData1.get("transferId")+"';";
+		session.execute("update monitor_transfer set target_file='"
+                +transferMetaData1.get("destinationFile").replace("\\", "/")+"' "+"where transfer_id= '" +transferMetaData1.get("transferId")+"';");
+//		String cqlstatementu2="update monitor_transfer set transfer_status ='success' where transfer_id= '" +transferMetaData1.get("transferId")+"';";
+		session.execute("update monitor_transfer set transfer_status ='success' where transfer_id= '" +transferMetaData1.get("transferId")+"';");
 	}
 	public static void transferEventDetails(Session session, Map<String, String> metadata1, Map<String, String> transferMetaData) {
-		String cqlInsert="insert into transfer_event(transfer_id,monitor_name) "+"values('"+transferMetaData.get("transferId")+"','"+metadata1.get("monitorName")+"');";
-		session.execute(cqlInsert);
+//		String cqlInsert="insert into transfer_event(transfer_id,monitor_name,current_timestamp) "+"values('"+transferMetaData.get("transferId")+"','"+metadata1.get("monitorName")+"'"+",'"+timeStamp+"');";
+		session.execute("insert into transfer_event(transfer_id,monitor_name,current_timestamp) "+"values('"+transferMetaData.get("transferId")+"','"+metadata1.get("monitorName")+"'"+",'"+timeStamp+"');");
 		
 	}
 	public static void updateTransferEventPublishDetails(Session session, Map<String, String> transferMetaData1) {
 	
-		String cqlPublishUpdate="update transfer_event set producer_key='"+transferMetaData1.get("incrementPublish")+"' where transfer_id ='"+transferMetaData1.get("transferId")+"';";
-		session.execute(cqlPublishUpdate);
+//		String cqlPublishUpdate="update transfer_event set producer_key='"+transferMetaData1.get("incrementPublish")+"' where transfer_id ='"+transferMetaData1.get("transferId")+"';";
+		session.execute("update transfer_event set producer_key='"+transferMetaData1.get("incrementPublish")+"' where transfer_id ='"+transferMetaData1.get("transferId")+"';");
 	}
 	public static void updateTransferEventConsumeDetails(Session session,Map<String, String> transferMetaData1) {
-		String cqlConsumeUpdate="update transfer_event set consumer_key='"+transferMetaData1.get("incrementConsumer")+"' where transfer_id ='"+transferMetaData1.get("transferId")+"';";
-		session.execute(cqlConsumeUpdate);
+//		String cqlConsumeUpdate="update transfer_event set consumer_key='"+transferMetaData1.get("incrementConsumer")+"' where transfer_id ='"+transferMetaData1.get("transferId")+"';";
+		session.execute("update transfer_event set consumer_key='"+transferMetaData1.get("incrementConsumer")+"' where transfer_id ='"+transferMetaData1.get("transferId")+"';");
 	}
 	
 
 	public static String DBMonitorCheck(Session session, String Monitor_name)
 			throws NoSuchFieldException, SecurityException {
-		String s = null ;
+		String monitortSatus = null ;
 		
-		String cqlStatementR = "select * from Monitor where monitor_name='"
-				+ Monitor_name + "';";
-		ResultSet result = session.execute(cqlStatementR);
+//		String cqlStatementR = "select * from Monitor where monitor_name='"
+//				+ Monitor_name + "';";
+		ResultSet result = session.execute("select * from Monitor where monitor_name='"
+				+ Monitor_name + "';");
 		
 		for (Row row : result) {
 			
-			s=row.getString("monitor_status");
+			monitortSatus=row.getString("monitor_status");
 
 		}
 		
-		return s;
+		return monitortSatus;
 	}
 	public static String kafkaSecondCheckMonitor(Session session, String Monitor_name)
 			throws NoSuchFieldException, SecurityException {
-		String s = null ;
+		String monitorAllDetails = null ;
 		
-		String cqlStatementR = "select * from Monitor where monitor_name='"
-				+ Monitor_name + "';";
-		ResultSet result = session.execute(cqlStatementR);
+//		String cqlStatementR = "select * from Monitor where monitor_name='"
+//				+ Monitor_name + "';";
+		ResultSet result = session.execute("select * from Monitor where monitor_name='"
+				+ Monitor_name + "';");
 		
 		for (Row row : result) {
 			
-			s=row.getString("monitor_name")+","+row.getString("monitor_status")+","+row.getString("thread_status");
+			monitorAllDetails=row.getString("monitor_name")+","+row.getString("monitor_status")+","+row.getString("thread_status");
 
 		}
 		
-		return s;
+		return monitorAllDetails;
 	}
 	
 	public static String kafkaSecondCheckTransfer(Session session, String transfer_id)
 			throws NoSuchFieldException, SecurityException {
-		String s = null ;
+		String monitorTransferAllDetails = null ;
 		
-		String cqlStatementR = "select * from monitor_transfer where transfer_id='"
-				+ transfer_id + "';";
-		ResultSet result = session.execute(cqlStatementR);
+//		String cqlStatementR = "select * from monitor_transfer where transfer_id='"
+//				+ transfer_id + "';";
+		ResultSet result = session.execute("select * from monitor_transfer where transfer_id='"
+				+ transfer_id + "';");
 		
 		for (Row row : result) {
 			
-			s=row.getString("transfer_id")+","+row.getString("job_name")+","+row.getString("monitor_name")+","+
+			monitorTransferAllDetails=row.getString("transfer_id")+","+row.getString("job_name")+","+row.getString("monitor_name")+","+
 			row.getString("source_file")+","+row.getString("target_file")+","+row.getString("transfer_status");
 
 		}
 		
-		return s;
+		return monitorTransferAllDetails;
 	}
-	public static String listTables(String tname)
-	{
-		String serverIp = "127.0.0.1";
-		String keyspace = "prakash";
-		Session session = null;
-		String s = null;
-		Cluster cluster = Cluster.builder().addContactPoints(serverIp).build();
-		session = cluster.connect(keyspace);
-		Metadata metadata = cluster.getMetadata();
-		Iterator<TableMetadata> tm = metadata.getKeyspace(keyspace).getTables().iterator();
-
-	      while(tm.hasNext()){
-	          TableMetadata t = tm.next();
-	          System.out.println(t.getName());
-	          if(t.getName()==tname) {
-	        	  s=t.getName();
-	          }
-	      }
-		return s;
-		
-	}
+//	public static String listTables(String tname)
+//	{
+//		String serverIp = "127.0.0.1";
+//		String keyspace = "ofte";
+//		Session session = null;
+//		String allTables = null;
+//		Cluster cluster = Cluster.builder().addContactPoints(serverIp).build();
+//		session = cluster.connect(keyspace);
+//		Metadata metadata = cluster.getMetadata();
+//		Iterator<TableMetadata> tableMetaData = metadata.getKeyspace(keyspace).getTables().iterator();
+//
+//	      while(tableMetaData.hasNext()){
+//	          TableMetadata t = tableMetaData.next();
+//	          System.out.println(t.getName());
+//	          if(t.getName()==tname) {
+//	        	  allTables=t.getName();
+//	          }
+//	      }
+//		return allTables;
+//		
+//	}
 	
 
 	// System.out.println(s);
@@ -203,7 +247,7 @@ public class DBOperations {
 	public static Session connectCassandra() {
 		//need to read ip and keyspace from a property file visible to user.
 		String serverIp = "127.0.0.1";
-		String keyspace = "prakash";
+		String keyspace = "ofte";
 		Session session = null;
 		Cluster cluster = Cluster.builder().addContactPoints(serverIp).build();
 		session = cluster.connect(keyspace);
