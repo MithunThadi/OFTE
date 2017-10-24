@@ -1,0 +1,1 @@
+https://www.programcreek.com/java-api-examples/index.php?source_dir=ignite-master/modules/kafka/src/test/java/org/apache/ignite/stream/kafka/KafkaEmbeddedBroker.java#
