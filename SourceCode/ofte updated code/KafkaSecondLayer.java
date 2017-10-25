@@ -55,7 +55,7 @@ public class KafkaSecondLayer {
 	 ConsumerConnector consumerConnector = null;
 	 
 	 /**
-	  * 
+	  * This method publish the data into the kafka
 	  * @param TOPIC
 	  * @param Key
 	  * @param Message
@@ -89,14 +89,14 @@ public class KafkaSecondLayer {
 		KeyedMessage<String, String> message = new KeyedMessage<String, String>(TOPIC, Key, Message);
 		//Publishing messages to producer
 		producer.send(message);
-		//Declaration of parameter Status and initializing it to published succesfully
+		//Declaration of parameter Status and initialising it to published successfully
 		String Status = "published succesfully";
 		System.out.println(Status);
 		//closing producer
 		producer.close();
 		//Creating an object for KafkaSecondLayer class
 		KafkaSecondLayer kafkaSecondLayer=new KafkaSecondLayer();
-		//
+		//Invoking consume method
 		kafkaSecondLayer.consume(TOPIC);
 		}
 		//catching the exception for KafkaException
@@ -131,7 +131,7 @@ public class KafkaSecondLayer {
 		}
 	}
 /**
- * 
+ * This method consumes the data from the kafka 
  * @param TOPIC
  */
 	public void consume(String TOPIC) {
@@ -149,28 +149,34 @@ public class KafkaSecondLayer {
 		properties.put("fetch.message.max.bytes", loadProperties.getSecondLayerProperties().getProperty("FETCH.MESSAGE.MAX.BYTES"));
 		//Creation of ConsumerConfig object
 		ConsumerConfig conConfig = new ConsumerConfig(properties);
+		//Creating the consumerConnector
 		consumerConnector = kafka.consumer.Consumer.createJavaConsumerConnector(conConfig);
 		//Creation of Map object
 		Map<String, Integer> topicCount = new HashMap<String, Integer>();
+		//Inserting the values to topicCount
 		topicCount.put(TOPIC, new Integer(1));
-		// ConsumerConnector creates the message stream for each topic
+		//Creation of Map object for consumerStreams
 		Map<String, List<KafkaStream<byte[], byte[]>>> consumerStreams = consumerConnector
 				.createMessageStreams(topicCount);
+		//Creation of List for kafkaStreamList
 		List<KafkaStream<byte[], byte[]>> kafkaStreamList = consumerStreams.get(TOPIC);
-		//for loop to increment kafkaStreamList
+		//for each loop to iterate kafkaStreamList
 		for (final KafkaStream<byte[], byte[]> kafkaStreams : kafkaStreamList) {
 			ConsumerIterator<byte[], byte[]> consumerIterator = kafkaStreams.iterator();
 			//Creating an object for File class
 			File file = new File(loadProperties.getSecondLayerProperties().getProperty("SECONDLAYERFILENAME"));
 			//Declaration of parameter FileWriter
 			FileWriter fileWriter;
-			//while loop to check consumerIterator
+			//while loop to iterate consumerIterator
 			while (consumerIterator.hasNext()) {
 				try {
 					//Creating an object for FileWriter class
 					fileWriter = new FileWriter(file, true);
+					//Writing the  kafka messages to destination file
 					fileWriter.write(new String(consumerIterator.next().message()));
+					//closing fileWriter
 					fileWriter.close();
+					//shutting down consumerConnector
 					consumerConnector.shutdown();
 				} catch (Exception e) {
 					System.out.println(e);

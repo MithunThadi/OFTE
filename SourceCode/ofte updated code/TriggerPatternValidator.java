@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
  */
 public class TriggerPatternValidator {
 	/**
-	 * In this method it checks trigger pattern condition
+	 * This method returns the boolean value either true or false based on the condition that the filename is matched with the given triggerpattern condition
 	 * @param triggerPattern
 	 * @param fileName
 	 * @return validatedResult

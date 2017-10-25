@@ -4,9 +4,7 @@ import java.util.Map;
 /**
  * 
  * Class Functionality:
- * 						
- * 						
- * 						
+ * 						This class is used to replace the file extension part				
  * Methods:
  * 			public String variableSubstitutor(Map<String, String> transferMetaDataMap, String sourceFilePattern)
  * 			public String replacer(String sourceFilePattern, String fileNameORfilePath, int i)
@@ -14,7 +12,7 @@ import java.util.Map;
  */
 public class VariablesSubstitution {
 	/**
-	 * 
+	 * This method returns the string based on the delimiter and token value given in the sourcefilepattern.
 	 * @param transferMetaDataMap
 	 * @param sourceFilePattern
 	 * @return sourceFilePattern

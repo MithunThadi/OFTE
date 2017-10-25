@@ -21,7 +21,6 @@ import kafka.common.InvalidConfigException;
  * 						The main functionality of this class is depending upon the user command it watches the directory for a particular period of time and publishing the files
  * 
  * Methods:
- * 			public TimedMonitor(Timer timer,Long pollTime)
  * 			public void timerAccess(Map<String, String> metaDataMap)
  * 			public void run()
  *
@@ -34,7 +33,7 @@ public class TimedMonitor extends TimerTask {
 	//Creating an object for StringWriter class
 	StringWriter log4jStringWriter = new StringWriter();
 	//Declaration of parameter Map
-	static Map<String, String> metaDataMap1;
+	static String monitorName1;
 	//Creating an object for SimpleDateFormat class
 	SimpleDateFormat simpledateFormat = new SimpleDateFormat("ddHHmmss");
 	//Declaration of parameter previousListSize
@@ -55,28 +54,22 @@ public class TimedMonitor extends TimerTask {
 	Map<String, String> transferMetaData = new HashMap<String, String>();
 	//Creating an object for CassandraInteracter class
 	CassandraInteracter cassandraInteracter=new CassandraInteracter();
+	KafkaMapData kafkaMapData = new KafkaMapData();
+
 	/**
-	 * 
-	 * @param timer
-	 * @param pollTime
+	 * This method is used to calculate the poll time by using poll Interval and poll units
+	 * @param pollUnits 
+	 * @param interval 
+	 * @param monitorName 
 	 */
-	public TimedMonitor(Timer timer,Long pollTime) {
-		this.timer = timer;
-		this.pollTime = pollTime;
-	}
-	/**
-	 * 
-	 * @param metaDataMap
-	 */
-	public void timerAccess(Map<String, String> metaDataMap) {
+	public void timerAccess(String monitorName, String interval, String pollUnits) {
 		try {
-			metaDataMap1 = metaDataMap;
+			//Initialising monitorName1 with monitorName
+			monitorName1 = monitorName;
 			//Creating an object for Timer class
 			Timer timer = new Timer();
 			//Initialising pollInterval by getting the pollInterval from metaDataMap
-			int pollInterval = Integer.parseInt(metaDataMap.get("pollInterval"));
-			//Initialising pollUnits by getting the pollUnits from metaDataMap
-			String pollUnits = metaDataMap.get("pollUnits");
+			int pollInterval = Integer.parseInt(interval);
 			//Initialising pollTime to zero
 			long pollTime = 0;
 			switch (pollUnits) {
@@ -94,7 +87,8 @@ public class TimedMonitor extends TimerTask {
 				pollTime = pollInterval * 60 * 60 * 24 * 1000;
 				break;
 			}
-			timer.scheduleAtFixedRate(new TimedMonitor(timer, pollTime), 1000, pollTime);
+			//Watching the directory at scheduled time interval
+			timer.scheduleAtFixedRate(new TimedMonitor(), 1000, pollTime);
 		} 
 		//catching the exception for NumberFormatException
 		catch (NumberFormatException numberFormatException) {
@@ -104,115 +98,116 @@ public class TimedMonitor extends TimerTask {
 		}
 	}
 	@Override
+	/**
+	 * 
+	 */
 	public void run() {
 		try {
-			//Creating an object for File class
-			file = new File(metaDataMap1.get("sourceDirectory"));
+			//Creating of Map object 
+			Map<String, String> metaDataMap = new HashMap<String, String>();
+			//Declaration of parameter mapData and initialising
+			String mapData = kafkaMapData.consume("Monitor_MetaData_"+monitorName1);
+			//Declaration of parameter mapDataArrays and initialising it with map values
+			String[] mapDataArrays = mapData.split(",");
+			//for loop to put the values into Map object 
+            for (int j = 0; j < mapDataArrays.length; j++) {
+                metaDataMap.put(
+                        (mapDataArrays[j].substring(0,
+                                (mapDataArrays[j].indexOf("=")))).toString(),
+                        ((mapDataArrays[j]
+                                .substring(mapDataArrays[j].indexOf("=") + 1)))
+                                        .toString());
+
+            }
+			//Creating an object for File class and initialising it with sourceDirectory by getting the values from metaDataMap
+			file = new File(metaDataMap.get("sourceDirectory"));
 			System.out.println("Timer created for::" + file);
-			//
+			//Declaration of parameter numberOfFiles and initialising it with file.listFiles().length
 			int numberOfFiles = file.listFiles().length;
 			System.out.println(numberOfFiles);
-			//
+			//Initialising filesInDirectory with file.list()
 			filesInDirectory = file.list();
-			//
+			//Initialising previousListSize with filesList.size()
 			previousListSize = filesList.size();
+			//Creating an object for Timestamp class
 			Timestamp currentTimeStamp = new Timestamp(System.currentTimeMillis());
+			//Declaration of parameter currentTime and initialising it with currentTimeStamp
 			Long currentTime = Long.parseLong(simpledateFormat.format(currentTimeStamp));
+			//if loop to check the condition previousListSize not equals to zero
 			if (previousListSize != 0) {
+				//for loop to add the file in matchedFilesList 
 				for (int i = 0; i < numberOfFiles; i++) {
 					System.out.println("list size is " + previousListSize);
+					//for loop to add the files in matchedFilesList
 					for (int j = 0; j < previousListSize; j++) {
+						//if loop to check the condition filesList equals to filesInDirectory
 						if ((filesList.get(j)).toString().equals(filesInDirectory[i].toString())) {
 							System.out.println("if loop: " + (filesList.get(j)).toString());
-							File file = new File(metaDataMap1.get("sourceDirectory") + filesInDirectory[i].toString());
+							//Creating an object for File class and initialising it with sourceDirectory by getting values from metaDataMap
+							File file = new File(metaDataMap.get("sourceDirectory") + filesInDirectory[i].toString());
+							//Declaration of parameter lastStringModified and initialising it with lastModified time
 							String lastStringModified = simpledateFormat.format(file.lastModified());
+							//Declaration of parameter lastModified and initialising it with lastStringModified time
 							Long lastModified = Long.parseLong(lastStringModified);
+							//if loop to check the condition lastModified
 							if (((lastModified >= (currentTime - pollTime)) && (lastModified < currentTime))) {
 								continue;
 							} else {
 								matchedFilesList.add(filesInDirectory[i]);
 							}
+							//Replacing filesInDirectory array with no value
 							filesInDirectory[i] = "";
 						}
 					}
 				}
 			}
+			//clear filesList
 			filesList.clear();
+			//adding matchedFilesList to filesList
 			filesList.addAll(matchedFilesList);
+			//clear matchedFilesList
 			matchedFilesList.clear();
+			//Initialising previousListSize with filesList.size
 			previousListSize = filesList.size();
 			System.out.println(filesInDirectory.length);
+			//Creating an object for TriggerPatternValidator class
 			TriggerPatternValidator triggerPatternValidator=new TriggerPatternValidator();
+			//for loop to add filesInDirectory to filesList
 			for (int i = 0; i < filesInDirectory.length; i++) {
 				System.out.println((!filesInDirectory[i].equalsIgnoreCase(""))+ " "+  (triggerPatternValidator
-						.validateTriggerPattern(metaDataMap1.get("triggerPattern"), filesInDirectory[i]) + " " + filesInDirectory[i]));
+						.validateTriggerPattern(metaDataMap.get("triggerPattern"), filesInDirectory[i]) + " " + filesInDirectory[i]));
+				//if loop to check the triggerPattern condition before adding filesList
 				if ((!filesInDirectory[i].equalsIgnoreCase("")) && (triggerPatternValidator
-						.validateTriggerPattern(metaDataMap1.get("triggerPattern"), filesInDirectory[i]))) {
+						.validateTriggerPattern(metaDataMap.get("triggerPattern"), filesInDirectory[i]))) {
+					//Adding filesInDirectory to filesList
 					filesList.add(filesInDirectory[i]);
 					System.out.println("tpv");
 				}
 			}
 			System.out.println(filesList.size());
+			//if loop  to check previousListSize and filesListsize 
 			if (previousListSize < filesList.size()) {
 				System.out.println(filesList);
+				//Initialising the parameter count
 				int count = (filesList.size() - (filesList.size() - previousListSize));
+				//for loop  to check previousListSize and filesListsize to add the new files in processFileList
 				for (int i = count; i < filesList.size(); i++) {
 					System.out.println(filesList.get(i));
-					if (triggerPatternValidator.validateTriggerPattern(metaDataMap1.get("triggerPattern"),
+					//if loop to check the condition triggerPatternValidator and adding processFileList
+					if (triggerPatternValidator.validateTriggerPattern(metaDataMap.get("triggerPattern"),
 							filesList.get(i).toString())) {
+						//Adding filesList to processFileList 
 						processFileList.add((filesList.get(i)).toString());
 						System.out.println("tpv");
 					}
 				}
 			}
-			FilesProcessorService filesProcessorService = new FilesProcessorService();
-			VariablesSubstitution variablesSubstitution=new VariablesSubstitution();
-			
-			if (processFileList.size() > 0) {
-				for (String file : processFileList) {
-					String sourceFile=null,destinationFile=null;
-					System.out.println(file);
-					String filePath = metaDataMap1.get("sourceDirectory") + "\\" + file;
-					transferMetaData.put("FileName", file);
-					transferMetaData.put("FilePath", filePath);
-					if(metaDataMap1.get("triggerPattern").equalsIgnoreCase(metaDataMap1.get("sourcefilePattern"))) {
-						sourceFile=filePath;
-					}else if(metaDataMap1.get("sourcefilePattern")!=null) {
-						sourceFile=variablesSubstitution.variableSubstitutor(transferMetaData, metaDataMap1.get("sourcefilePattern"));
-					}
-					String targetFile = metaDataMap1.get("destinationDirectory") + sourceFile.substring(sourceFile.lastIndexOf("\\"));
-					if(metaDataMap1.get("destinationDirectory")!=null) {
-						destinationFile=targetFile;
-					}else if(metaDataMap1.get("destinationFile")!=null) {
-						destinationFile= variablesSubstitution.variableSubstitutor(transferMetaData, metaDataMap1.get("destinationFile"));
-					}
-					UniqueID uniqueID=new UniqueID();
-					String transferId = uniqueID.generateUniqueID();
-					System.out.println(transferId);
-					transferMetaData.put("transferId", transferId);
-					transferMetaData.put("sourceFileName", sourceFile);
-					transferMetaData.put("destinationFile", destinationFile);
-					cassandraInteracter.started(cassandraInteracter.connectCassandra(), metaDataMap1.get("monitorName"));
-					try {
-						KafkaSecondLayer kafkaSecondLayer=new KafkaSecondLayer();
-						kafkaSecondLayer.publish(loadProperties.getOFTEProperties().getProperty("TOPICNAME"), metaDataMap1.get("monitorName"), cassandraInteracter.kafkaSecondCheckMonitor(cassandraInteracter.connectCassandra(),metaDataMap1.get("monitorName")));
-					} catch (NoSuchFieldException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (SecurityException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-					
-					cassandraInteracter.transferDetails(cassandraInteracter.connectCassandra(), metaDataMap1, transferMetaData);
-					
-					cassandraInteracter.transferEventDetails(cassandraInteracter.connectCassandra(), metaDataMap1, transferMetaData);
-					filesProcessorService.getMessages(filePath, metaDataMap1, transferMetaData);
-					System.out.println("fileProcessor releasing");
-				}
-			}
-			processFileList.clear();
+			//Creating an object for ProcessFiles class
+			ProcessFiles processFiles = new ProcessFiles();
+			//Invoking processFiles class to process the files in processFileList
+			LinkedList<String> processFilesList = processFiles.processFileList(processFileList, metaDataMap);
+			//clear the processFilesList
+			processFilesList.clear();
 		} 
 		//catching the exception for NoSuchMethodError
 		catch (NoSuchMethodError noSuchMethodError) {

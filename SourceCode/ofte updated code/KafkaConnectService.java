@@ -35,7 +35,7 @@ public class KafkaConnectService {
 	StringWriter log4jStringWriter = new StringWriter();
 	
 	/**
-	 * 
+	 * This method creates a topic similar to the file transferred based on the number of partitions and number of replications
 	 * @param topicName
 	 * @param numberOfPartitions
 	 * @param numberOfReplications

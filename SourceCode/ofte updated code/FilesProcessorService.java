@@ -38,7 +38,7 @@ import kafka.utils.ZkUtils;
 /**
  * 
  * Class Functionality:
- * 						The main functionality of this class is depending upon the partsize it is splitting the file into number of parts and publishing data into kafkaserver and consuming the data and also parallelly updating the database
+ * 						The main functionality of this class is depending upon the part size it is splitting the file into number of parts and publishing data into kafkaserver and consuming the data and also parallelly updating the database
  * Methods:
  * 			public void publish(String TOPIC, String Key, String Message, Map<String, String> metadata,Map<String, String> transferMetaData)
  *			public void consume(String TOPIC, Map<String, String> metadata, Session session,Map<String, String> transferMetaData)
@@ -52,18 +52,18 @@ public class FilesProcessorService {
 	 Logger logger = Logger.getLogger(FilesProcessorService.class.getName());
 	//Creating an object for StringWriter class
 	StringWriter log4jStringWriter = new StringWriter();
-	//Creation of ZkClient object
+	//Creation of ZkClient object and initialising it with loadProperties file
 	 ZkClient zkClient = new ZkClient(loadProperties.getKafkaProperties().getProperty("ZOOKEEPER.CONNECT"), Integer.parseInt(loadProperties.getKafkaProperties().getProperty("SESSIONTIMEOUT")), Integer.parseInt(loadProperties.getKafkaProperties().getProperty("CONNECTIONTIMEOUT")), ZKStringSerializer$.MODULE$);
-	 //Declaration of parameter ConsumerConnector
+	 //Declaration of parameter ConsumerConnector and initialising it to null
 	 ConsumerConnector consumerConnector = null;
-	//Declaration of parameter publishCount
+	//Declaration of parameter publishCount and initialising it to zero
 	public int publishCount = 0;
-	//Declaration of parameter subscribeCount
+	//Declaration of parameter subscribeCount and initialising it to zero
 	public int subscribeCount = 0;
 	//Creating an object for CassandraInteracter class
 	CassandraInteracter cassandraInteracter=new CassandraInteracter();
 	/**
-	 * 
+	 * This method is used to publish the data
 	 * @param TOPIC
 	 * @param Key
 	 * @param Message
@@ -74,12 +74,13 @@ public class FilesProcessorService {
 			Map<String, String> transferMetaData) {
 		try {
 			System.out.println("setting zkclient");
-			//Creation of ZkUtils object
+			//Creation of ZkUtils object and initialising it with loadProperties file
 			ZkUtils zkutils = new ZkUtils(zkClient, new ZkConnection(loadProperties.getKafkaProperties().getProperty("ZOOKEEPER.CONNECT")), true);
-			//if loop to check the condition !AdminUtils.topicExists
+			//if loop to check the condition topicExists or not
 			if (!AdminUtils.topicExists(zkutils, TOPIC)) {
 				//Creating an object for KafkaConnectService class
 				KafkaConnectService kafkaConnectService=new KafkaConnectService();
+				//Creation of topic 
 				kafkaConnectService.createTopic(TOPIC, Integer.parseInt(loadProperties.getKafkaProperties().getProperty("NUMBEROFPARTITIONS")), Integer.parseInt(loadProperties.getKafkaProperties().getProperty("NUMBEROFREPLICATIONS")));
 			}
 			System.out.println("created success");
@@ -99,15 +100,22 @@ public class FilesProcessorService {
 					producerConfig);
 			//Creation of KeyedMessage object 
 			KeyedMessage<String, String> message = new KeyedMessage<String, String>(TOPIC, Key, Message);
+			//Sending the messages to producer
 			producer.send(message);
+			//Inserting publishCount to transferMetaData
 			transferMetaData.put("incrementPublish", Integer.toString(publishCount++));
+			//Updating the database
 			cassandraInteracter.updateTransferEventPublishDetails(cassandraInteracter.connectCassandra(), transferMetaData);
+			//closing th producer
 			producer.close();
+			//Invoking the consume method
 			consume(TOPIC, metadata, cassandraInteracter.connectCassandra(), transferMetaData);
 			System.out.println("Consumed Successfully: " + TOPIC);
+			////Updating the database
 			cassandraInteracter.updateTransferDetails(cassandraInteracter.connectCassandra(), transferMetaData, metadata);
 			//Creating an object for KafkaSecondLayer class
 			KafkaSecondLayer kafkaSecondLayer=new KafkaSecondLayer();
+			//publishing the monitor_transfer table data
 			kafkaSecondLayer.publish(loadProperties.getOFTEProperties().getProperty("TOPICNAME1"), transferMetaData.get("transferId"),
 					cassandraInteracter.kafkaSecondCheckTransfer(cassandraInteracter.connectCassandra(),
 							transferMetaData.get("transferId")));
@@ -152,7 +160,7 @@ public class FilesProcessorService {
 		}
 	}
 	/**
-	 * 
+	 * This method is used to consume the data
 	 * @param TOPIC
 	 * @param metadata
 	 * @param session
@@ -176,27 +184,38 @@ public class FilesProcessorService {
 			properties.put("fetch.message.max.bytes", loadProperties.getKafkaProperties().getProperty("FETCH.MESSAGE.MAX.BYTES"));
 			//Creation of ConsumerConfig object 
 			ConsumerConfig conConfig = new ConsumerConfig(properties);
+			//Creating the consumerConnector
 			consumerConnector = kafka.consumer.Consumer.createJavaConsumerConnector(conConfig);
+			//Inserting the values to topicCount
 			topicCount.put(TOPIC, new Integer(1));
+			//Creation of Map object for consumerStreams
 			Map<String, List<KafkaStream<byte[], byte[]>>> consumerStreams = consumerConnector
 					.createMessageStreams(topicCount);
+			//Creation of List for kafkaStreamList
 			List<KafkaStream<byte[], byte[]>> kafkaStreamList = consumerStreams.get(TOPIC);
-			//for loop to increment kafkaStreamList
+			//for each loop to iterate kafkaStreamList
 			for (final KafkaStream<byte[], byte[]> kafkaStreams : kafkaStreamList) {
+				//Getting the kafka streams
 				ConsumerIterator<byte[], byte[]> consumerIterator = kafkaStreams.iterator();
+				//Inserting destinationDirectory to transferMetaData
 				transferMetaData.put("destinationFile", metadata.get("destinationDirectory") + "\\" + TOPIC);
 				//Declaration of parameter FileWriter
 				FileWriter destinationFileWriter;
-				//while loop to check consumerIterator
+				//while loop to iterate consumerIterator
 				while (consumerIterator.hasNext()) {
 					try {
 						//Creating an object for FileWriter class
 						destinationFileWriter = new FileWriter(
 								new File(metadata.get("destinationDirectory") + "\\" + TOPIC), true);
+						//Writing the  kafka messages to destination file
 						destinationFileWriter.write(new String(consumerIterator.next().message()));
+						//closing the destinationFileWriter
 						destinationFileWriter.close();
+						//Inserting subscribeCount to transferMetaData
 						transferMetaData.put("incrementConsumer", Integer.toString(subscribeCount++));
+						//Updating the database
 						cassandraInteracter.updateTransferEventConsumeDetails(session, transferMetaData);
+						//shutdown the consumerConnector
 						consumerConnector.shutdown();
 						System.out.println("done for : " + TOPIC);
 						break;
@@ -240,7 +259,7 @@ public class FilesProcessorService {
 	}
 
 		/**
-		 * 
+		 * This method is used to split the files
 		 * @param sourceFile
 		 * @param metadata
 		 * @param transferMetaData
@@ -254,14 +273,14 @@ public class FilesProcessorService {
 		FileInputStream inputStream;
 		//Declaration of parameter Key
 		String Key;
-		//Declaration of parameter sourceFileName
+		//Declaration of parameter sourceFileName and initialising it to null
 		String sourceFileName = null;
-		//Declaration of parameter sourceFileArray[]
+		//Declaration of parameter sourceFileArray[] and splitting sourceFileDirectory using on delimiter
 		String sourceFileArray[] = sourceFile.split(delimiter);
-		//Declaration of parameter sourceFileArraySize
+		//Declaration of parameter sourceFileArraySize and initialising it to sourceFileArray.length
 		int sourceFileArraySize = sourceFileArray.length;
 		sourceFileName = sourceFileArray[sourceFileArraySize - 1];
-		//Declaration of parameter sourceFileSize
+		//Declaration of parameter sourceFileSize initialising it to inputFile.length
 		int sourceFileSize = (int) inputFile.length();
 		System.out.println("filesize is" + sourceFileSize);
 		//Declaration of parameter nChunks
@@ -273,27 +292,35 @@ public class FilesProcessorService {
 		try {
 			//Creating an object for FileInputStream class
 			inputStream = new FileInputStream(inputFile);
-			//while loop to check the condition sourceFileSize> 0
+			//while loop to check the sourceFileSize> 0
 			while (sourceFileSize > 0) {
-				//if loop to check the condition inputStream.available() < readLength
+				//if loop to check the inputStream.available() < readLength
 				if (inputStream.available() < readLength) {
+					//Initialising the byte chunk part with inputStream 
 					byteChunkPart = new byte[inputStream.available()];
+					//Initialising the read with inputStream bytes
 					read = inputStream.read(byteChunkPart, 0, inputStream.available());
 				} else {
 					byteChunkPart = new byte[readLength];
 					read = inputStream.read(byteChunkPart, 0, readLength);
 				}
+				//Deducting the sourceFileSize with read size
 				sourceFileSize -= read;
 				assert (read == byteChunkPart.length);
+				//Incrementing nChunks
 				nChunks++;
+				//Initialising key value
 				Key = sourceFileName + "." + (nChunks - 1);
 				System.out.println(sourceFileName);
+				//Publishing the data
 				publish(sourceFileName, Key, new String(byteChunkPart), metadata, transferMetaData);
 				System.out.println("completed for thread: " + sourceFileName);
 
 			}
+			//closing inputStream
 			inputStream.close();
 			System.out.println("closing Stream for " + inputFile);
+			//Initialising publishCount and subscribeCount with zero
 			publishCount=0;
 			subscribeCount=0;
 			//Creating an object for Acknowledgement class

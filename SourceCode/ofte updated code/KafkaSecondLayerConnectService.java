@@ -35,7 +35,7 @@ public class KafkaSecondLayerConnectService {
 	//Creating an object for StringWriter class
 	 StringWriter log4jStringWriter = new StringWriter();
 	 /**
-	  * 
+	  * This method is used to create the topic
 	  * @param topicName
 	  * @param numberOfPartitions
 	  * @param numberOfReplications
@@ -46,7 +46,7 @@ public class KafkaSecondLayerConnectService {
 		//Declaration of parameter ZkUtils
 		ZkUtils zkUtils = null;
 		try {
-			//Creation of ZkClient object
+			//Creation of ZkClient object and initialising it by using loadProperties file
 			zkClient = new ZkClient(loadProperties.getSecondLayerProperties().getProperty("ZOOKEEPERHOSTS"), 
 					Integer.parseInt(loadProperties.getSecondLayerProperties().getProperty("SESSIONTIMEOUTINMS")),
 					Integer.parseInt(loadProperties.getSecondLayerProperties().getProperty("CONNECTIONTIMEOUTINMS")));
@@ -60,10 +60,11 @@ public class KafkaSecondLayerConnectService {
 					return ZKStringSerializer.deserialize(bytes);
 				}
 			});
-			//Creation of ZkUtils object
+			//Creation of ZkUtils object  and initialising it by using loadProperties file
 			zkUtils = new ZkUtils(zkClient, new ZkConnection(loadProperties.getSecondLayerProperties().getProperty("ZOOKEEPERHOSTS")), false);
 			//Creation of Properties object
 			Properties topicConfiguration = new Properties();
+			//Cfreation of topic
 			AdminUtils.createTopic(zkUtils, topicName, numberOfPartitions, numberOfReplications, topicConfiguration,
 					RackAwareMode.Enforced$.MODULE$);
 			System.out.println(AdminUtils.topicExists(zkUtils, topicName));

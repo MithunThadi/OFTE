@@ -6,7 +6,7 @@ import java.util.Properties;
 /**
  * 
  * Class Functionality:
- * 
+ * 					This class is used to return the properties	of kafka,Casasandra,Zookeeper.
  * Methods:
  * 			public Properties loadProperties(String fileName)
  * 			public Properties getKafkaProperties()
@@ -17,7 +17,7 @@ import java.util.Properties;
  */
 public class LoadProperties {
 	/**
-	 * 
+	 * This method is used to return the properties	of kafka,Casasandra,Zookeeper
 	 * @param fileName
 	 * @return properties
 	 */
@@ -37,7 +37,7 @@ public class LoadProperties {
 		return properties;
 	}
 	/**
-	 * 
+	 * This method is used to load the kafka.properties file
 	 * @return loadProperties("Kafka.properties")
 	 */
 	public Properties getKafkaProperties() {
@@ -46,7 +46,7 @@ public class LoadProperties {
 
 	}
 	/**
-	 * 
+	 * This method is used to load the SecondLayer.properties file
 	 * @return loadProperties("SecondLayer.properties")
 	 */
 	public Properties getSecondLayerProperties() {
@@ -55,7 +55,7 @@ public class LoadProperties {
 
 	}
 	/**
-	 * 
+	 * This method is used to load the Cassandra.properties file
 	 * @return loadProperties("Cassandra.properties")
 	 */
 	public Properties getCassandraProperties() {
@@ -64,7 +64,7 @@ public class LoadProperties {
 
 	}
 	/**
-	 * 
+	 * This method is used to load the OFTE.properties file
 	 * @return loadProperties("OFTE.properties")
 	 */
 	public Properties getOFTEProperties() {
