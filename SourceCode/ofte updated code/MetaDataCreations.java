@@ -25,6 +25,7 @@ import com.datastax.driver.core.exceptions.NoHostAvailableException;
  * 			static void main(String[] args) throws Exception
  *
  */
+
 public class MetaDataCreations {
 	//Creating an object for LoadProperties class
 	static LoadProperties loadProperties = new LoadProperties();
@@ -35,7 +36,7 @@ public class MetaDataCreations {
 	 //Declaration of parameter Timer
 	 static Timer timer ;
 	 /**
-	   * 
+	   * This method is used to put the command values into the map object
 	   * @param i
 	   * @param args
 	   * @param metaDataMap
@@ -120,32 +121,43 @@ public class MetaDataCreations {
 			MetaDataCreations metaDataCreations=new MetaDataCreations();
 			//Creating an object for CassandraInteracter class
 			CassandraInteracter cassandraInteracter=new CassandraInteracter();
+			
+			KafkaMapData kafkaMapData = new KafkaMapData();
 			//for loop to increment i value until i less than args.length
 			for (int i = 0; i < args.length; i++) {
 				metaDataMap =metaDataCreations.mapUpdater(i, args, metaDataMap);
 			}
 			//Creating an object for XMLCreator class
 			XMLCreator xmlCreator=new XMLCreator();
+			//if loop to check the condition monitorName not equals to empty
+			if(!metaDataMap.get("monitorName").isEmpty()) {
+			//	Creating the xml file as per given command
 			xmlCreator.access(metaDataMap);
+			}
+//			declaration of parameter mapTopicName and initialising the mapTopicName with monitor name
+			String mapTopicName = "Monitor_MetaData_"+metaDataMap.get("monitorName");
 			//Creation of Session object
-			Session session = cassandraInteracter.connectCassandra();
+//			Session session = cassandraInteracter.connectCassandra();
 			//if loop to check the conditions from database
-			if (cassandraInteracter.DBMonitorCheck(session, metaDataMap.get("monitorName")) == null
+			if (cassandraInteracter.DBMonitorCheck(cassandraInteracter.connectCassandra(), metaDataMap.get("monitorName")) == null
 					|| metaDataMap.get("monitorOverride").equalsIgnoreCase("true")) {
-				cassandraInteracter.starting(session, metaDataMap.get("monitorName"));
+				cassandraInteracter.starting(cassandraInteracter.connectCassandra(), metaDataMap.get("monitorName"));
 				//Creating an object for KafkaSecondLayer class
 				KafkaSecondLayer kafkaSecondLayer=new KafkaSecondLayer();
-				kafkaSecondLayer.publish(loadProperties.getOFTEProperties().getProperty("TOPICNAME"), metaDataMap.get("monitorName"), cassandraInteracter.kafkaSecondCheckMonitor(session,metaDataMap.get("monitorName")));
+//				publishing the monitor Table details to the kafka server
+				kafkaSecondLayer.publish(loadProperties.getOFTEProperties().getProperty("TOPICNAME"), metaDataMap.get("monitorName"), cassandraInteracter.kafkaSecondCheckMonitor(cassandraInteracter.connectCassandra(),metaDataMap.get("monitorName")));
 				
 			} else {
 				throw new Exception("Monitor " + metaDataMap.get("monitorName")
 						+ "already exists specify -f parameter to override the previous one");
 			}
-			//closing session object
-			session.close();
+			
+			//Publishing map data
+			kafkaMapData.publish(mapTopicName, metaDataMap.get("monitorName"), metaDataMap.toString().replace("{", "").replace("}", "").replace(" ", ""));
 			//Creating an object for TimedMonitor class
-			TimedMonitor timedMonitor=new TimedMonitor(timer, 0L);
-			timedMonitor.timerAccess(metaDataMap);
+			TimedMonitor timedMonitor=new TimedMonitor();
+//			initialising the poll time by taking pollInterval and pollunits
+			timedMonitor.timerAccess(metaDataMap.get("monitorName"),metaDataMap.get("pollInterval"),metaDataMap.get("pollUnits"));
 			} 
 		//catching the exception for TransformerException
 		catch (TransformerException transformerException) {

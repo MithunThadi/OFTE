@@ -46,11 +46,13 @@ public class CassandraInteracter {
 		String transferStatus = null;
 		//Declaration of parameter result which holds the row by row data of the select statement
 		ResultSet result = session.execute("select transfer_status from monitor_transfer where transfer_id ='"+transferMetaData2.get("transferId")+"';");
-		//for loop to increment the result
+		//for each loop to iterate the row
 		for(Row row : result) {
 			//Updating transferStatus by getting transfer_status from each row
 			transferStatus = row.getString("transfer_status");
 		}
+		//Closing the session
+		session.close();
 		//return statement
 		return transferStatus;
 	}
@@ -66,11 +68,12 @@ public class CassandraInteracter {
 		String sourceFile = null;
 		//Declaration of parameter result which holds the row by row data of the select statement
 		ResultSet result = session.execute("select source_file from monitor_transfer where transfer_id ='"+transferMetaData2.get("transferId")+"';");
-		//for loop to increment the result
+		//for loop to increment the row
 		for(Row row : result) {
 			//Updating sourceFile by getting source_file from each row
 			sourceFile = row.getString("source_file");
 		}	
+		session.close();
 		//return statement
 		return sourceFile;
 	}
@@ -84,6 +87,8 @@ public class CassandraInteracter {
 		//Inserting the values into Monitor table
 		session.execute("INSERT INTO Monitor(monitor_name,thread_status,monitor_status,current_timestamp) VALUES ('"
 				+ Monitor_name + "','creating','starting','"+timeStamp+"' );");
+		//Closing the session
+		session.close();
 	}
 	
 	/**
@@ -98,6 +103,8 @@ public class CassandraInteracter {
 		//Updating the monitor_status in the Monitor table
 		session.execute("UPDATE Monitor SET monitor_status = 'started' where monitor_name = '"
 				+ Monitor_name + "';");
+		//Closing the session
+		session.close();
 	}
 
 	/**
@@ -128,6 +135,8 @@ public class CassandraInteracter {
 		//Updating the thread_status in the Monitor table
 		session.execute( "UPDATE Monitor SET thread_status = 'deleting' where monitor_name = '"
 				+ Monitor_name + "';");
+		//Closing the session
+		session.close();
 	}
 
 	/**
@@ -142,6 +151,8 @@ public class CassandraInteracter {
 		//Updating the thread_status in the Monitor table
 		session.execute("UPDATE Monitor SET thread_status = 'deleted' where monitor_name = '"
 				+ Monitor_name + "';");
+		//Closing the session
+		session.close();
 	}
 	
 	/**
@@ -153,6 +164,8 @@ public class CassandraInteracter {
 		//Deleting the Monitor
 		session.execute("DELETE FROM Monitor "
 				+ "WHERE Monitor_name = '" +  Monitor_name+ "';");
+		//Closing the session
+		session.close();
 	}
 	
 	/**
@@ -164,7 +177,8 @@ public class CassandraInteracter {
 	public void transferDetails(Session session,Map<String,String> map, Map<String, String> transferMetaData){
 		//Inserting the values into monitor_transfer table
 		session.execute("insert into monitor_transfer(monitor_name,job_name,source_file,transfer_id,current_timestamp) "
-				+ "values("+"'"+map.get("monitorName")+"','"+map.get("jobName")+"'"+",'"+transferMetaData.get("sourceFileName").replace("\\", "/")+"'"+",'"+transferMetaData.get("transferId")+"'"+",'"+timeStamp+"');");		
+				+ "values("+"'"+map.get("monitorName")+"','"+map.get("jobName")+"'"+",'"+transferMetaData.get("sourceFileName").replace("\\", "/")+"'"+",'"+transferMetaData.get("transferId")+"'"+",'"+timeStamp+"');");
+		session.close();
 	}
 	
 	/**
@@ -179,6 +193,8 @@ public class CassandraInteracter {
                 +transferMetaData1.get("destinationFile").replace("\\", "/")+"' "+"where transfer_id= '" +transferMetaData1.get("transferId")+"';");
 		//Updating the transfer_status in monitor_transfer table
 		session.execute("update monitor_transfer set transfer_status ='success' where transfer_id= '" +transferMetaData1.get("transferId")+"';");
+		//Closing the session
+		session.close();
 	}
 	
 	/**
@@ -190,6 +206,8 @@ public class CassandraInteracter {
 	public void transferEventDetails(Session session, Map<String, String> metadata1, Map<String, String> transferMetaData) {
 		//Inserting the values into transfer_event table
 		session.execute("insert into transfer_event(transfer_id,monitor_name,current_timestamp) "+"values('"+transferMetaData.get("transferId")+"','"+metadata1.get("monitorName")+"'"+",'"+timeStamp+"');");	
+		//Closing the session
+		session.close();
 	}
 	
 	/**
@@ -200,6 +218,8 @@ public class CassandraInteracter {
 	public void updateTransferEventPublishDetails(Session session, Map<String, String> transferMetaData1) {
 		//Updating the producer_key in transfer_event table
 		session.execute("update transfer_event set producer_key='"+transferMetaData1.get("incrementPublish")+"' where transfer_id ='"+transferMetaData1.get("transferId")+"';");
+		//Closing the session
+		session.close();
 	}
 	
 	/**
@@ -210,6 +230,8 @@ public class CassandraInteracter {
 	public void updateTransferEventConsumeDetails(Session session,Map<String, String> transferMetaData1) {
 		//Updating the consumer_key in transfer_event table
 		session.execute("update transfer_event set consumer_key='"+transferMetaData1.get("incrementConsumer")+"' where transfer_id ='"+transferMetaData1.get("transferId")+"';");
+		//Closing the session
+		session.close();
 	}
 	
 	/**
@@ -227,11 +249,13 @@ public class CassandraInteracter {
 		//Declaration of parameter result which holds the row by row data of the select statement
 		ResultSet result = session.execute("select * from Monitor where monitor_name='"
 				+ Monitor_name + "';");	
-		//for loop to increment the result
+		//for each loop to iterate the row
 		for (Row row : result) {	
 			//Updating monitortSatus by getting monitor_status from each row
 			monitortSatus=row.getString("monitor_status");
 		}
+		//Closing the session
+		session.close();
 		//return statement
 		return monitortSatus;
 	}
@@ -251,11 +275,12 @@ public class CassandraInteracter {
 		//Declaration of parameter result which holds the row by row data of the select statement
 		ResultSet result = session.execute("select * from Monitor where monitor_name='"
 				+ Monitor_name + "';");	
-		//for loop to increment the result
+		//for each loop to iterate the row
 		for (Row row : result) {
 			//Updating monitorAllDetails by getting monitor_name,monitor_status,thread_status from each row
 			monitorAllDetails=row.getString("monitor_name")+","+row.getString("monitor_status")+","+row.getString("thread_status");
 		}	
+		session.close();
 		//return statement
 		return monitorAllDetails;
 	}
@@ -275,12 +300,14 @@ public class CassandraInteracter {
 		//Declaration of parameter result which holds the row by row data of the select statement
 		ResultSet result = session.execute("select * from monitor_transfer where transfer_id='"
 				+ transfer_id + "';");	
-		//for loop to increment the result
+		//for each loop to iterate the row
 		for (Row row : result) {
 			//Updating monitorTransferAllDetails by getting transfer_id,transfer_id,monitor_name,source_file,target_file,transfer_status from each row
 			monitorTransferAllDetails=row.getString("transfer_id")+","+row.getString("transfer_id")+","+row.getString("monitor_name")+","+
 			row.getString("source_file")+","+row.getString("target_file")+","+row.getString("transfer_status");
 		}
+		//Closing the session
+		session.close();
 		//return statement
 		return monitorTransferAllDetails;
 	}
