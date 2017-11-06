@@ -32,7 +32,7 @@ public class ProcessFiles {
 		StringWriter log4jStringWriter = new StringWriter();
 		ZkClient zkClient;
 		ZkUtils zkUtils;
-		KafkaServerService kafkaServerService = new KafkaServerService();
+//		KafkaServerService kafkaServerService = new KafkaServerService();
 		
 
 /**
@@ -58,11 +58,20 @@ public class ProcessFiles {
 			
 			//for each loop to take the file in processFileList
 			for (String file : processFileList) {
+				
 				KafkaServerService kafkaServerService = new KafkaServerService();
+				kafkaServerService.setBROKER_PORT(0);
+				kafkaServerService.setId(0);
+				kafkaServerService.setZkPort(0);
 				zkClient = kafkaServerService.setupEmbeddedZooKeeper();
 				kafkaServerService.setupEmbeddedKafkaServer();
 				zkUtils = kafkaServerService.accessZkUtils();
-				
+//				
+				HashMap<String,String> dynamicValues=kafkaServerService.returndetails();
+				System.out.println("dynamic values "+dynamicValues);
+				transferMetaData.put("zkport", dynamicValues.get("zkPort"));
+				transferMetaData.put("BROKER_PORT", dynamicValues.get("BROKER_PORT"));
+				transferMetaData.put("id", dynamicValues.get("id"));
 				//Declaration of parameters sourceFile and destinationFile and initialising it to null
 				String sourceFile = null, destinationFile = null;
 				System.out.println(file);
