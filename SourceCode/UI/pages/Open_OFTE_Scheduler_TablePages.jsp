@@ -64,7 +64,7 @@ a:hover {
   <tr>
     <td>
       <h1 style="text-align:center;">OFTE EXPLORER</h1>
-      <div id="button1"><a href="http://localhost:8080/OFTE_UI_PAGES/ui_page/OFTE_HomePage.html">GO TO HOME PAGE</a></div>
+      <div id="button1"><a href="http://localhost:8080/TestingUI/Open_OFTE_MainHome_Pages.html">GO TO HOME PAGE</a></div>
     </td>
     </tr>
     </table>

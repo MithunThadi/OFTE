@@ -9,7 +9,7 @@ java.util.*,java.sql.*"%>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Insert title here</title>
+<title>TransferTableStatus</title>
 <style>
 #ofte {
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
@@ -32,6 +32,83 @@ java.util.*,java.sql.*"%>
     text-align: left;
     background-color: #4c84af;
     color: white;
+}
+#button {
+    width: 15em;
+    border: 2px solid black;
+    background: #4c84af;
+    border-radius: 5px;
+}
+
+#button1 {
+	float: right;
+    width: 10em;
+    border: 2px solid black;
+    background: #4c84af;
+    border-radius: 5px;
+}
+a {
+    display: block;
+    width: 100%;
+    line-height: 2em;
+    text-align: center;
+    color:white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+a:hover {
+    color: black;
+    background: #eff;
+}
+
+#ofte1 {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#ofte1 td, #ofte th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#ofte1 tr:nth-child(even){background-color: #f2f2f2;}
+
+#ofte1 tr:hover {background-color: #ddd;}
+
+#ofte th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #4c84af;
+    color: white;
+}
+#button {
+    width: 15em;
+    border: 2px solid black;
+    background: #4c84af;
+    border-radius: 5px;
+}
+
+#button1 {
+	float: right;
+    width: 10em;
+    border: 2px solid black;
+    background: #4c84af;
+    border-radius: 5px;
+}
+a {
+    display: block;
+    width: 100%;
+    line-height: 2em;
+    text-align: center;
+    color:white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+a:hover {
+    color: black;
+    background: #eff;
 }
 </style>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -83,7 +160,14 @@ java.util.*,java.sql.*"%>
 </head>
 <body>
 <body>
-<h1 style="text-align:center;">OFTE EXPLORER</h1>
+<table id="ofte1">
+  <tr>
+    <td>
+      <h1 style="text-align:center;">OFTE EXPLORER</h1>
+      <div id="button1"><a href="http://localhost:8080/TestingUI/Open_OFTE_MainHome_Pages.html">GO TO HOME PAGE</a></div>
+    </td>
+    </tr>
+    </table>
  <sql:setDataSource var="con" driver="org.apache.cassandra.cql.jdbc.CassandraDriver"
  url="jdbc:cassandra://127.0.0.1:9160/ofte" /> 
  
@@ -100,12 +184,7 @@ java.util.*,java.sql.*"%>
  <table id="ofte">
  <tr>
  <th>Transfer_Id</th><th>Current_Timestamp</th><th>Job_Name</th><th>Monitor_Name</th><th>Source_File</th><th>Target_File</th><th>Transfer_Status</th>
- 
- 
- 
- 
- 
- 
+  
  </tr>
  
 <%while(rs.next()) {
@@ -132,6 +211,6 @@ out.println("</table>");
 	 }
 	 }
  %>
- <div id="piechart" style="width: 900px; height: 500px;"></div>
+<div id="piechart" style="width: 900px; height: 500px;"></div>
 </body>
 </html>

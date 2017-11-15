@@ -127,31 +127,37 @@ width:90%;
   <tr>
     <td>
       <h1 style="text-align:center;">OFTE EXPLORER</h1>
-      <div id="button1"><a href="http://localhost:8080/OFTE_UI_PAGES/ui_page/TransfersPage.html">GO TO HOME PAGE</a></div>
+      <div id="button1"><a href="http://localhost:8080/TestingUI/Open_OFTE_Transfer_Pages.html">GO TO HOME PAGE</a></div>
     </td>
     </tr>
     </table>
 <fieldset>		
-<form name="form" id="form" class="modal-content">
+<form name="form" id="form" class="modal-content" method="post" action="OneTimeTransfer">
+<div>
+<fieldset>
+<label for="Monitor Name">Monitor Name:</label><input type="text" name="mn"> <br><br />
+</fieldset>
+</div>
+
 <div>
 <fieldset>
 <legend>Source Details</legend>
-<label for="Source Directory">Source Directory:</label><input type="text" id="sd"> <br><br />
-<label for="Source Trigger Pattern">Source Trigger Pattern:</label><input type="text" id="stp"> <br><br />
-<label for="Source File Pattern">Source File Pattern:</label><input type="text" id="sfp"><br><br />
+<label for="Source Directory">Source Directory:</label><input type="text" name="sd"> <br><br />
+<label for="Source Trigger Pattern">Source Trigger Pattern:</label><input type="text" name="stp"> <br><br />
+<label for="Source File Pattern">Source File Pattern:</label><input type="text" name="sfp"><br><br />
 </fieldset>
 </div>
 
 <div>
 <fieldset>
 <legend>Destination Details</legend>
-<label for="Destination Directory">Destination Directory:</label><input type="text" id="dd"><br><br />
-<label for="Destination File Pattern">Destination File Pattern:</label><input type="text" id="dfp"><br><br />
-<label for="Destination Trigger Pattern">Destination Trigger Pattern:</label><input type="text" id="dtp"><br><br />
+<label for="Destination Directory">Destination Directory:</label><input type="text" name="dd"><br><br />
+<label for="Destination File Pattern">Destination File Pattern:</label><input type="text" name="dfp"><br><br />
+<label for="Destination Trigger Pattern">Destination Trigger Pattern:</label><input type="text" name="dtp"><br><br />
 </fieldset>
 </div>
 
-<input type="submit" value="submit" method="get"/>
+<input type="submit" value="submit" />
 
 </form>
 </fieldset>
