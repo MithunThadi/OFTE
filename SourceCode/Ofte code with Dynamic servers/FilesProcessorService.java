@@ -78,16 +78,16 @@ public class FilesProcessorService {
 	 * @param metadata
 	 * @param transferMetaData
 	 */
-	String brokerPort = kafkaServerService.getBrokerAddress();
-	String zookeeperPort = kafkaServerService.getZKAddress();
-	String groupId = kafkaServerService.getId();
+//	String brokerPort = kafkaServerService.getBrokerAddress();
+//	String zookeeperPort = kafkaServerService.getZKAddress();
+//	String groupId = kafkaServerService.getId();
 	public void publish(String TOPIC, String Key, String Message,ZkUtils zkutils,ZkClient zkClient, Map<String, String> metadata,
 			Map<String, String> transferMetaData) {
 		
-		
-		System.out.println(brokerPort+"           in Fileprocessor");
-		System.out.println(zookeeperPort+"           in Fileprocessor");
-		System.out.println(groupId+"           in Fileprocessor");
+//		
+//		System.out.println(brokerPort+"           in Fileprocessor");
+//		System.out.println(zookeeperPort+"           in Fileprocessor");
+//		System.out.println(groupId+"           in Fileprocessor");
 		try {
 			System.out.println("setting zkclient");
 			System.out.println(AdminUtils.topicExists(zkutils, TOPIC));
@@ -124,16 +124,17 @@ public class FilesProcessorService {
 			}
 			System.out.println("created success");
 			//Creation of Properties object
-			Properties properties = new Properties();
-			properties.put("metadata.broker.list",brokerPort );
-			properties.put("serializer.class", loadProperties.getKafkaProperties().getProperty("SERIALIZER.CLASS"));
-			properties.put("reconnect.backoff.ms", loadProperties.getKafkaProperties().getProperty("RECONNECT.BACKOFF.MS"));
-			properties.put("retry.backoff.ms", loadProperties.getKafkaProperties().getProperty("RETRY.BACKOFF.MS"));
-			properties.put("producer.type", loadProperties.getKafkaProperties().getProperty("PRODUCER.TYPE"));
-			properties.put("message.send.max.retries", loadProperties.getKafkaProperties().getProperty("MESSAGE.SEND.MAX.RETRIES"));
-			properties.put("message.max.bytes", loadProperties.getKafkaProperties().getProperty("MESSAGE.MAX.BYTES"));
+//			Properties properties = new Properties();
+//			properties.put("metadata.broker.list",transferMetaData.get("BROKER_PORT") );
+//			properties.put("serializer.class", loadProperties.getKafkaProperties().getProperty("SERIALIZER.CLASS"));
+//			properties.put("reconnect.backoff.ms", loadProperties.getKafkaProperties().getProperty("RECONNECT.BACKOFF.MS"));
+//			properties.put("retry.backoff.ms", loadProperties.getKafkaProperties().getProperty("RETRY.BACKOFF.MS"));
+//			properties.put("producer.type", loadProperties.getKafkaProperties().getProperty("PRODUCER.TYPE"));
+//			properties.put("message.send.max.retries", loadProperties.getKafkaProperties().getProperty("MESSAGE.SEND.MAX.RETRIES"));
+//			properties.put("message.max.bytes", loadProperties.getKafkaProperties().getProperty("MESSAGE.MAX.BYTES"));
 //			Creation of ProducerConfig object 
-			ProducerConfig producerConfig = new ProducerConfig(properties);
+//			ProducerConfig producerConfig = new ProducerConfig(properties);
+			ProducerConfig producerConfig =kafkaServerService.getProducerConfig();
 //			Creation of Producer object
 			System.out.println(Message);
 //			ProducerConfig producerConfig= new ProducerConfig(properties);
@@ -223,23 +224,23 @@ public class FilesProcessorService {
 			//Creation of Map object 
 			Map<String, Integer> topicCount = new HashMap<String, Integer>();
 			//Creation of Properties object 
-			System.out.println(kafkaServerService.getId());
-			Properties properties = new Properties();
-			properties.put("zookeeper.connect", zookeeperPort );
-			properties.put("group.id", groupId );
-			properties.put("enable.auto.commit",loadProperties.getKafkaProperties().getProperty("ENABLE.AUTO.COMMIT"));
-			properties.put("auto.commit.interval.ms", loadProperties.getKafkaProperties().getProperty("AUTO.COMMIT.INTERVAL.MS"));
-			properties.put("auto.offset.reset", loadProperties.getKafkaProperties().getProperty("AUTO.OFFSET.RESET"));
-			properties.put("session.timeout.ms", loadProperties.getKafkaProperties().getProperty("SESSION.TIMEOUT.MS"));
-			properties.put("key.deserializer", loadProperties.getKafkaProperties().getProperty("KEY.DESERIALIZER"));
-			properties.put("value.deserializer", loadProperties.getKafkaProperties().getProperty("VALUE.DESERIALIZER"));
-			properties.put("fetch.message.max.bytes", loadProperties.getKafkaProperties().getProperty("FETCH.MESSAGE.MAX.BYTES"));
-			System.out.println(kafkaServerService.getZKAddress());
-			System.out.println(properties);
-			//Creation of ConsumerConfig object 
-			ConsumerConfig conConfig = new ConsumerConfig(properties);
+//			System.out.println(kafkaServerService.getId());
+//			Properties properties = new Properties();
+//			properties.put("zookeeper.connect", transferMetaData.get("zkport") );
+//			properties.put("group.id", transferMetaData.get("id") );
+//			properties.put("enable.auto.commit",loadProperties.getKafkaProperties().getProperty("ENABLE.AUTO.COMMIT"));
+//			properties.put("auto.commit.interval.ms", loadProperties.getKafkaProperties().getProperty("AUTO.COMMIT.INTERVAL.MS"));
+//			properties.put("auto.offset.reset", loadProperties.getKafkaProperties().getProperty("AUTO.OFFSET.RESET"));
+//			properties.put("session.timeout.ms", loadProperties.getKafkaProperties().getProperty("SESSION.TIMEOUT.MS"));
+//			properties.put("key.deserializer", loadProperties.getKafkaProperties().getProperty("KEY.DESERIALIZER"));
+//			properties.put("value.deserializer", loadProperties.getKafkaProperties().getProperty("VALUE.DESERIALIZER"));
+//			properties.put("fetch.message.max.bytes", loadProperties.getKafkaProperties().getProperty("FETCH.MESSAGE.MAX.BYTES"));
+//			System.out.println(kafkaServerService.getZKAddress());
+//			System.out.println(properties);
+//			//Creation of ConsumerConfig object 
+//			ConsumerConfig conConfig = new ConsumerConfig(properties);
 			//Creating the consumerConnector
-//			ConsumerConfig conConfig = kafkaServerService.getConsumerConfig();
+			ConsumerConfig conConfig = kafkaServerService.getConsumerConfig();
 			consumerConnector = kafka.consumer.Consumer.createJavaConsumerConnector(conConfig);
 			//Inserting the values to topicCount
 			topicCount.put(TOPIC, new Integer(1));
