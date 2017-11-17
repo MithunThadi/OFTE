@@ -123,6 +123,8 @@ public class CassandraInteracter {
 		session.execute(
 				"UPDATE Monitor SET monitor_status = 'started' where monitor_name = '"
 						+ Monitor_name + "';");
+		// session.execute("INSERT INTO Monitor(current_timestamp) VALUES ('"
+		// + timeStamp + "');");
 		// Closing the session
 		session.close();
 	}
@@ -410,6 +412,25 @@ public class CassandraInteracter {
 		session.close();
 	}
 
+	public String DBSchedulerCheck(Session session, String Scheduler_name)
+			throws NoSuchFieldException, SecurityException {
+		// Declaration of parameter monitortSatus and initialising it to null
+		String schedulerStatus = null;
+		// Declaration of parameter result which holds the row by row data of
+		// the select statement
+		ResultSet result = session
+				.execute("select * from Scheduler where Scheduler_name='"
+						+ Scheduler_name + "';");
+		// for each loop to iterate the row
+		for (Row row : result) {
+			// Updating monitortSatus by getting monitor_status from each row
+			schedulerStatus = row.getString("scheduler_status");
+		}
+		// Closing the session
+		session.close();
+		// return statement
+		return schedulerStatus;
+	}
 	public void schedulerStarting(Session session, String scheduler_name) {
 		// Inserting the values into Monitor table
 		session.execute(

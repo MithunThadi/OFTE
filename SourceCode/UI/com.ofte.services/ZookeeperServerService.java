@@ -15,8 +15,8 @@ public class ZookeeperServerService {
 	public ZooKeeperServer startup(String zkHost, int zkPort)
 			throws IOException, InterruptedException {
 
-		snapshotDir = new File("D:\\zootmp1-" + zkPort);
-		logDir = new File("D:\\zootmp1-" + zkPort);
+		snapshotDir = new File("D:\\Dynamic logs\\zootmp1-" + zkPort);
+		logDir = new File("D:\\Dynamic logs\\zootmp1-" + zkPort);
 		ZooKeeperServer zkSrv = new ZooKeeperServer(snapshotDir, logDir, 500);
 		factory = new NIOServerCnxnFactory();
 		factory.configure(new InetSocketAddress(zkHost, zkPort), 16);

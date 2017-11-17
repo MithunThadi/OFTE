@@ -19,6 +19,7 @@ public class SFTPSingleTime {
 	LinkedList<String> processFileList = new LinkedList<String>();
 	int previousListSize = 0;
 	SimpleDateFormat simpledateFormat = new SimpleDateFormat("ddHHmmss");
+	@SuppressWarnings({"rawtypes", "unused"})
 	public LinkedList<String> singleTimeTrigger(Session session,
 			String remoteFile, Map<String, String> metaDataMap1)
 			throws IOException, SftpException {

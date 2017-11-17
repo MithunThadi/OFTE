@@ -55,7 +55,7 @@ public class KafkaServerService {
 	ZkUtils zkutils;
 	LoadProperties loadProperties = new LoadProperties();
 	ZookeeperServerService zookeeperServerService = new ZookeeperServerService();
-	HashMap<String, String> dynamicMap = new HashMap();
+	HashMap<String, String> dynamicMap = new HashMap<String, String>();
 	// public KafkaServerService() {
 	//
 	// }
@@ -122,7 +122,47 @@ public class KafkaServerService {
 		// int id1= KafkaUtils.idGenerator();
 		dynamicMap.put("id", String.valueOf(id));
 		// id=id1;
-		logDir = "D:\\kafka-" + BROKER_PORT + "-logs-zk-"
+		logDir = "D:\\Dynamic logs\\kafka-" + BROKER_PORT + "-logs-zk-"
+				+ zkPort;
+		Properties properties = new Properties();
+		properties.put("reserved.broker.max.id", KafkaServerService.getId());
+		properties.put("broker.id", KafkaServerService.getId());
+		properties.put("host.name", ZK_HOST);
+		properties.put("port", KafkaServerService.getBROKER_PORT());
+		properties.put("log.dir", logDir);
+		properties.put("zookeeper.connect", zkHost + ':' + zkPort);
+		properties.put("log.flush.interval.messages", "1");
+		properties.put("replica.socket.timeout.ms", "1500");
+		properties.put("log.retention.ms", "1000");
+		properties.put("log.cleaner.enable", "true");
+		properties.put("controlled.shutdown.enable", "true");
+		// properties.put("replica.fetch.max.bytes", "1073741824");
+		// properties.put("message.max.bytes", "1073741824");
+		// properties.put("fetch.message.max.bytes", "1073741824");
+
+		return properties;
+	}
+
+	public KafkaConfig setupEmbeddedKafkaHugeServer() throws IOException {
+		// int BROKER_PORT1=KafkaUtils.portGenerator();
+		// BROKER_PORT=BROKER_PORT1;
+		kafkaConfig = new KafkaConfig(getBrokerConfigHugeSize());
+
+		dynamicMap.put("BROKER_PORT", String.valueOf(BROKER_PORT));
+
+		System.out.println(
+				"KafkaPort:" + BROKER_PORT + "    in kafka server service");
+		kafkaSrv = new KafkaServerStartable(kafkaConfig);
+		kafkaSrv.startup();
+		System.out.println("Kafka Connected");
+		return kafkaConfig;
+	}
+
+	public Properties getBrokerConfigHugeSize() throws IOException {
+		// int id1= KafkaUtils.idGenerator();
+		dynamicMap.put("id", String.valueOf(id));
+		// id=id1;
+		logDir = "D:\\Dynamic logs\\kafka-" + BROKER_PORT + "-logs-zk-"
 				+ zkPort;
 		Properties properties = new Properties();
 		properties.put("reserved.broker.max.id", KafkaServerService.getId());
@@ -142,6 +182,7 @@ public class KafkaServerService {
 
 		return properties;
 	}
+
 	public ProducerConfig getProducerConfig() {
 		LoadProperties loadProperties = new LoadProperties();
 		Properties properties = new Properties();

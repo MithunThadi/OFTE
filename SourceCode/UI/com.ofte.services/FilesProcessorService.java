@@ -408,12 +408,13 @@ public class FilesProcessorService {
 		sourceFileName = sourceFileArray[sourceFileArraySize - 1];
 		// Declaration of parameter sourceFileSize initialising it to
 		// inputFile.length
-		int sourceFileSize = (int) inputFile.length();
+		long sourceFileSize = inputFile.length();
 		System.out.println("filesize is" + sourceFileSize);
 		// Declaration of parameter nChunks
 		// Declaration of parameter read
 		// Declaration of parameter readLength
-		int nChunks = 0, read = 0, readLength = Integer.parseInt(
+		int nChunks = 0, read = 0;
+		Long readLength = Long.parseLong(
 				loadProperties.getOFTEProperties().getProperty("PART_SIZE"));
 		// Declaration of parameter byteChunkPart
 		byte[] byteChunkPart;
@@ -424,18 +425,25 @@ public class FilesProcessorService {
 			while (sourceFileSize > 0) {
 				// if loop to check the inputStream.available() < readLength
 				if (inputStream.available() < readLength) {
+					System.out
+							.println(inputStream.available() + " in if block");
 					// Initialising the byte chunk part with inputStream
 					byteChunkPart = new byte[inputStream.available()];
 					// Initialising the read with inputStream bytes
 					read = inputStream.read(byteChunkPart, 0,
 							inputStream.available());
 				} else {
-					byteChunkPart = new byte[readLength];
-					read = inputStream.read(byteChunkPart, 0, readLength);
+					System.out.println(
+							inputStream.available() + " in else block");
+					// byteChunkPart = new byte[readLength];
+					// byteChunkPart = Longs.toByteArray(readLength);
+					byteChunkPart = new byte[readLength.intValue()];
+					read = inputStream.read(byteChunkPart, 0,
+							readLength.intValue());
 				}
 				// Deducting the sourceFileSize with read size
 				sourceFileSize -= read;
-				assert (read == byteChunkPart.length);
+
 				// Incrementing nChunks
 				nChunks++;
 				// Initialising key value

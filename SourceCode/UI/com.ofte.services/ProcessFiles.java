@@ -41,6 +41,7 @@ public class ProcessFiles {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
+	@SuppressWarnings("static-access")
 	public LinkedList<String> processFileList(
 			LinkedList<String> processFileList, Map<String, String> metaDataMap)
 			throws IOException, InterruptedException {
@@ -52,14 +53,11 @@ public class ProcessFiles {
 			VariablesSubstitution variablesSubstitution = new VariablesSubstitution();
 			// Creating an object for CassandraInteracter class
 			CassandraInteracter cassandraInteracter = new CassandraInteracter();
-			
-			
-			
-			cassandraInteracter.started(
-					cassandraInteracter.connectCassandra(),
+
+			cassandraInteracter.started(cassandraInteracter.connectCassandra(),
 					metaDataMap.get("monitorName"));
 			try {
-				
+
 				// for each loop to take the file in processFileList
 				for (String file : processFileList) {
 
@@ -67,8 +65,20 @@ public class ProcessFiles {
 					kafkaServerService.setBROKER_PORT(0);
 					kafkaServerService.setId(0);
 					kafkaServerService.setZkPort(0);
+					// Declaration of parameters filePath and initialising it
+					// with
+					// sourceDirectory
+					String filePath = metaDataMap.get("sourceDirectory") + "\\"
+							+ file;
 					zkClient = kafkaServerService.setupEmbeddedZooKeeper();
-					kafkaServerService.setupEmbeddedKafkaServer();
+					// if (new File(filePath).length() > 0) {
+					// System.out.println("entered for small kafka server");
+					// kafkaServerService.setupEmbeddedKafkaServer();
+					// } else {
+					// System.out.println("entered for huge kafka server");
+					// kafkaServerService.setupEmbeddedKafkaHugeServer();
+					// }
+					kafkaServerService.setupEmbeddedKafkaHugeServer();
 					zkUtils = kafkaServerService.accessZkUtils();
 					//
 					HashMap<String, String> dynamicValues = kafkaServerService
@@ -78,14 +88,17 @@ public class ProcessFiles {
 					transferMetaData.put("BROKER_PORT",
 							dynamicValues.get("BROKER_PORT"));
 					transferMetaData.put("id", dynamicValues.get("id"));
-					// Declaration of parameters sourceFile and destinationFile and
+					// Declaration of parameters sourceFile and destinationFile
+					// and
 					// initialising it to null
 					String sourceFile = null, destinationFile = null;
 					System.out.println(file);
-					// Declaration of parameters filePath and initialising it with
+					// Declaration of parameters filePath and initialising it
+					// with
 					// sourceDirectory
-					String filePath = metaDataMap.get("sourceDirectory") + "\\"
-							+ file;
+					// String filePath = metaDataMap.get("sourceDirectory") +
+					// "\\"
+					// + file;
 					// Inserting file and filePath to transferMetaData
 					transferMetaData.put("FileName", file);
 					transferMetaData.put("FilePath", filePath);
@@ -100,22 +113,25 @@ public class ProcessFiles {
 								metaDataMap.get("sourcefilePattern"));
 
 					}
-					// Declaration of parameters targetFile and initialising it with
+					// Declaration of parameters targetFile and initialising it
+					// with
 					// destinationDirectory
 					String targetFile = metaDataMap.get("destinationDirectory")
-							+ sourceFile.substring(sourceFile.lastIndexOf("\\"));
+							+ sourceFile
+									.substring(sourceFile.lastIndexOf("\\"));
 					// if loop to check the condition destinationDirectory
 					if (metaDataMap.get("destinationDirectory") != null) {
 						destinationFile = targetFile;
 						System.out.println(destinationFile);
 					} else if (metaDataMap.get("destinationFile") != null) {
-						destinationFile = variablesSubstitution.variableSubstitutor(
-								transferMetaData,
-								metaDataMap.get("destinationFile"));
+						destinationFile = variablesSubstitution
+								.variableSubstitutor(transferMetaData,
+										metaDataMap.get("destinationFile"));
 					}
 					// Creating an object for UniqueID class
 					UniqueID uniqueIDTest = new UniqueID();
-					// Declaration of parameters transferId and initialising it with
+					// Declaration of parameters transferId and initialising it
+					// with
 					// generateUniqueID
 					String transferId = uniqueIDTest.generateUniqueID();
 					System.out.println(transferId);
@@ -126,9 +142,9 @@ public class ProcessFiles {
 					transferMetaData.put("destinationFile", destinationFile);
 					System.out.println(transferMetaData);
 					// Updating the database based on monitorName
-//				cassandraInteracter.started(
-//						cassandraInteracter.connectCassandra(),
-//						metaDataMap.get("monitorName"));
+					// cassandraInteracter.started(
+					// cassandraInteracter.connectCassandra(),
+					// metaDataMap.get("monitorName"));
 					try {
 						// Creating an object for KafkaSecondLayer class
 						KafkaSecondLayer kafkaSecondLayer = new KafkaSecondLayer();
@@ -146,8 +162,9 @@ public class ProcessFiles {
 						noSuchFieldException.printStackTrace(
 								new PrintWriter(log4jStringWriter));
 						// logging the exception for NoSuchFieldException
-						logger.error(loadProperties.getOFTEProperties().getProperty(
-								"LOGGEREXCEPTION") + log4jStringWriter.toString());
+						logger.error(loadProperties.getOFTEProperties()
+								.getProperty("LOGGEREXCEPTION")
+								+ log4jStringWriter.toString());
 
 					}
 					// catching the exception for SecurityException
@@ -155,8 +172,9 @@ public class ProcessFiles {
 						securityException.printStackTrace(
 								new PrintWriter(log4jStringWriter));
 						// logging the exception for SecurityException
-						logger.error(loadProperties.getOFTEProperties().getProperty(
-								"LOGGEREXCEPTION") + log4jStringWriter.toString());
+						logger.error(loadProperties.getOFTEProperties()
+								.getProperty("LOGGEREXCEPTION")
+								+ log4jStringWriter.toString());
 					}
 					// Updating the database
 					cassandraInteracter.transferDetails(
@@ -166,10 +184,10 @@ public class ProcessFiles {
 					cassandraInteracter.transferEventDetails(
 							cassandraInteracter.connectCassandra(), metaDataMap,
 							transferMetaData);
-					
+
 					// Invoking FilesProcessorService class
-					filesProcessorService.getMessages(zkClient, zkUtils, filePath,
-							metaDataMap, transferMetaData);
+					filesProcessorService.getMessages(zkClient, zkUtils,
+							filePath, metaDataMap, transferMetaData);
 					kafkaServerService.shutdown();
 					System.out.println("fileProcessor releasing");
 					// lock.unlock();
