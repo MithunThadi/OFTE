@@ -6,7 +6,7 @@ java.util.*,java.sql.*"%>
 
 <html>
 <head>
-<title>DeleteMonitor</title>
+<title>MonitorTable</title>
 <style>
 #ofte {
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
@@ -68,7 +68,6 @@ a:hover {
     </td>
     </tr>
     </table>
-    
  <sql:setDataSource var="con" driver="org.apache.cassandra.cql.jdbc.CassandraDriver"
  url="jdbc:cassandra://127.0.0.1:9160/ofte" /> 
  
@@ -80,24 +79,23 @@ a:hover {
  con = DriverManager.getConnection("jdbc:cassandra://127.0.0.1:9160/ofte");
  
  Statement stmt = con.createStatement();
- ResultSet rs=stmt.executeQuery("select monitor_name from monitor");
- 
- 
+ ResultSet rs=stmt.executeQuery("select * from monitor");
  //ResultSet rs1 = stmt.executeQuery("select * from monitor_metadata where monitor_name ="+rs.getString(1));
  %>
+ <table id="ofte">
+ <tr>
+ <th>Monitor_Name</th>
+ <th>Monitor_Status</th>
+ <th>Monitor_Metadata</th>
  
- <form name="form" id="form" class="modal-content" method="post" action="Sample">
- <center>
-    <h1> Delete Monitor</h1>
-    <label for="MonitorNames">MonitorNames:</label> 
-        <select>
-        <%  while(rs.next()){ %>
-            <option><%= rs.getString(1)%></option>
-        <% } %>
-        </select>
-</center>
+ </tr>
  
-
+<%while(rs.next()) {
+out.println("<tr><td>"+rs.getString(1)+"</td><td>"+rs.getString(3)+"</td><td>"+(stmt.executeQuery("select * from monitor_metadata where monitor_name='"+rs.getString(1)+"'")).getString(2)+"</td></tr>"); 
+}%>
+<%
+out.println("</table>");
+%>
  <%
  }catch (ClassNotFoundException e){
 	 e.printStackTrace();
@@ -115,8 +113,5 @@ a:hover {
 	 }
 	 }
  %>
- 
-<input type="submit" value="DeleteMonitor" />
-</form>
 </body>
 </html>
