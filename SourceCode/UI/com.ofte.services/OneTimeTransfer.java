@@ -2,6 +2,7 @@ package com.ofte.services;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -37,12 +38,24 @@ public class OneTimeTransfer {
 		// Invoking processFiles class to process the files in processFileList
 		LinkedList<String> processFilesList = null;
 		try {
-			processFilesList = processFiles
-					.processFileList(filesList, metaDataMap);
+			processFilesList = processFiles.processFileList(filesList,
+					metaDataMap);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

@@ -32,7 +32,7 @@ public class ScheduledTransferRemoteasSource extends HttpServlet {
 
 		// read form fields
 		String schedulerName = request.getParameter("schedulername");
-		// String jobName = request.getParameter("jname");
+		String jobName = request.getParameter("jname");
 		String sourceDirectory = request.getParameter("sd");
 		String sourceTriggerPattern = request.getParameter("stp");
 		String sourceFilePattern = request.getParameter("sfp");
@@ -49,7 +49,7 @@ public class ScheduledTransferRemoteasSource extends HttpServlet {
 		HashMap<String, String> hashMap = new HashMap<String, String>();
 		System.out.println(sourceDirectory);
 		hashMap.put("-sn", schedulerName);
-		// hashMap.put("-jn", jobName);
+		hashMap.put("-jn", jobName);
 		// hashMap.put("sd", sourceDirectory);
 		hashMap.put("-sftp-s", sourceDirectory);
 		hashMap.put("-tr", sourceTriggerPattern);
@@ -101,7 +101,7 @@ public class ScheduledTransferRemoteasSource extends HttpServlet {
 		out.println("<script type=\"text/javascript\">");
 		out.println("alert('successfully submited');");
 		out.println(
-				"window.open('http://localhost:8080/TestingUI/Open_OFTE_Scheduled_Transfers_Page.html','_self')");
+				"window.open('http://localhost:8080/Testing_UI/Open_OFTE_Scheduled_Transfers_Page.html','_self')");
 		out.println("</script>");
 	}
 }

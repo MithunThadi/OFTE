@@ -1,6 +1,9 @@
 package com.ofte.services;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import com.datastax.driver.core.Cluster;
@@ -91,6 +94,31 @@ public class CassandraInteracter {
 		return sourceFile;
 	}
 
+	public HashMap<String, String> getRowDetails(Session session,
+			String transferId) {
+		// Declaration of parameter sourceFile and initialising it to null
+		// String transferDetails = null;
+		HashMap<String, String> map = new HashMap<String, String>();
+		// Declaration of parameter result which holds the row by row data of
+		// the select statement
+		ResultSet result = session.execute(
+				"select job_name,source_file,target_file from monitor_transfer where transfer_id ='"
+						+ transferId + "';");
+		// for loop to increment the row
+		for (Row row : result) {
+			// Updating sourceFile by getting source_file from each row
+			// transferDetails = row.getString("job_name") + "," +
+			// row.getString("source_file") + "," +
+			// row.getString("target_file");
+			map.put("job_name", row.getString("job_name"));
+			map.put("source_file", row.getString("source_file"));
+			map.put("target_file", row.getString("target_file"));
+		}
+		session.close();
+		// return statement
+		return map;
+	}
+
 	/**
 	 * This method inserts the values into Monitor table based on monitor name
 	 * 
@@ -176,7 +204,7 @@ public class CassandraInteracter {
 	 * @param session
 	 * @param Monitor_name
 	 */
-	public void deletingThread(Session session, String Monitor_name) {
+	public void deletingMonitorThread(Session session, String Monitor_name) {
 		// Updating the monitor_status in the Monitor table
 		session.execute(
 				"UPDATE Monitor SET Monitor_status = 'deleted' where monitor_name = '"
@@ -195,10 +223,13 @@ public class CassandraInteracter {
 	 * @param session
 	 * @param Monitor_name
 	 */
-	public void deleted(Session session, String Monitor_name) {
+	public void deleteMonitor(Session session, String Monitor_name) {
 		// Deleting the Monitor
 		session.execute("DELETE FROM Monitor " + "WHERE Monitor_name = '"
 				+ Monitor_name + "';");
+		// deleting metadata
+		session.execute("DELETE FROM Monitor_metadata "
+				+ "WHERE Monitor_name = '" + Monitor_name + "';");
 		// Closing the session
 		session.close();
 	}
@@ -214,9 +245,8 @@ public class CassandraInteracter {
 			Map<String, String> transferMetaData) {
 		// Inserting the values into monitor_transfer table
 		session.execute(
-				"insert into monitor_transfer(monitor_name,job_name,source_file,transfer_id,current_timestamp) "
-						+ "values(" + "'" + map.get("monitorName") + "','"
-						+ map.get("jobName") + "'" + ",'"
+				"insert into monitor_transfer(job_name,source_file,transfer_id,current_timestamp) "
+						+ "values(" + "'" + map.get("jobName") + "'" + ",'"
 						+ transferMetaData.get("sourceFileName").replace("\\",
 								"/")
 						+ "'" + ",'" + transferMetaData.get("transferId") + "'"
@@ -391,7 +421,7 @@ public class CassandraInteracter {
 			// transfer_id,transfer_id,monitor_name,source_file,target_file,transfer_status
 			// from each row
 			monitorTransferAllDetails = row.getString("transfer_id") + ","
-					+ row.getString("monitor_name") + ","
+
 					+ row.getString("source_file") + ","
 					+ row.getString("target_file") + ","
 					+ row.getString("transfer_status");
@@ -452,6 +482,40 @@ public class CassandraInteracter {
 		// Closing the session
 		session.close();
 	}
+	public void schedulerTransferDetails(Session session,
+			Map<String, String> map) {
+		// Inserting the values into monitor_transfer table
+		session.execute(
+				"insert into monitor_transfer(job_name,source_file,transfer_id,current_timestamp) "
+						+ "values(" + "'" + map.get("jobName") + "'" + ",'"
+						+ map.get("sourceFileName").replace("\\", "/") + "'"
+						+ ",'" + map.get("sftpTransferId") + "'" + ",'"
+						+ timeStamp + "');");
+		session.close();
+	}
+
+	/**
+	 * This method updates the target file and transfer status values in monitor
+	 * transfer table based on transfer id
+	 * 
+	 * @param session
+	 * @param transferMetaData1
+	 * @param metadata
+	 */
+	public void updateSchedulerTransferDetails(Session session,
+			Map<String, String> metadata) {
+		// Updating the target_file in monitor_transfer table
+		session.execute("update monitor_transfer set target_file='"
+				+ metadata.get("destinationFile").replace("\\", "/") + "' "
+				+ "where transfer_id= '" + metadata.get("sftpTransferId")
+				+ "';");
+		// Updating the transfer_status in monitor_transfer table
+		session.execute(
+				"update monitor_transfer set transfer_status ='success' where transfer_id= '"
+						+ metadata.get("sftpTransferId") + "';");
+		// Closing the session
+		session.close();
+	}
 
 	public void insertScheduleMetaData(Session session, String Schedulename,
 			String metadata) {
@@ -461,6 +525,144 @@ public class CassandraInteracter {
 						+ Schedulename + "','" + metadata + "' );");
 		// Closing the session
 		session.close();
+	}
+	public void deletingSchedulerThread(Session session, String Sheduler_name) {
+		// Updating the monitor_status in the Monitor table
+		session.execute(
+				"UPDATE Scheduler SET Scheduler_status = 'deleted' where Scheduler_name = '"
+						+ Sheduler_name + "';");
+		// Updating the thread_status in the Monitor table
+		session.execute(
+				"UPDATE Scheduler SET thread_status = 'deleted' where Scheduler_name = '"
+						+ Sheduler_name + "';");
+		// Closing the session
+		session.close();
+	}
+
+	/**
+	 * This method deletes the values in the monitor table based on monitor name
+	 * 
+	 * @param session
+	 * @param Monitor_name
+	 */
+	public void deleteScheduler(Session session, String Sheduler_name) {
+		// Deleting the Monitor
+		session.execute("DELETE FROM Scheduler " + "WHERE Sheduler_name = '"
+				+ Sheduler_name + "';");
+		// deleting metadata
+		session.execute("DELETE FROM Scheduler_metadata "
+				+ "WHERE Sheduler_name = '" + Sheduler_name + "';");
+		// Closing the session
+		session.close();
+	}
+
+	public String getSourceFile(Session session, String transferId) {
+		// Declaration of parameter sourceFile and initialising it to null
+		String sourceFile = null;
+		// HashMap<String, String> map = new HashMap<String, String>();
+		// Declaration of parameter result which holds the row by row data of
+		// the select statement
+		ResultSet result = session.execute(
+				"select source_file from monitor_transfer where transfer_id ='"
+						+ transferId + "';");
+		// for loop to increment the row
+		for (Row row : result) {
+			// Updating sourceFile by getting source_file from each row
+			sourceFile = row.getString("source_file");
+			// map.put("source_file", row.getString("source_file"));
+		}
+		session.close();
+		// return statement
+		return sourceFile;
+	}
+
+	public String getMonitorName(Session session, String transferId) {
+		// Declaration of parameter sourceFile and initialising it to null
+		String monitorName = null;
+		// Declaration of parameter result which holds the row by row data of
+		// the select statement
+		ResultSet result = session.execute(
+				"select monitor_name from transfer_event where transfer_id ='"
+						+ transferId + "';");
+		// for loop to increment the row
+		for (Row row : result) {
+			// Updating sourceFile by getting source_file from each row
+			monitorName = row.getString("monitor_name");
+		}
+		session.close();
+		// return statement
+		return monitorName;
+	}
+
+	// public String getMonitorMetadata(Session session, String monitorName) {
+	// // Declaration of parameter sourceFile and initialising it to null
+	// String monitorMetadata = null;
+	// // Declaration of parameter result which holds the row by row data of
+	// // the select statement
+	// ResultSet result = session.execute(
+	// "select metadata from monitor_metadata where monitor_name ='"
+	// + monitorName + "';");
+	// // for loop to increment the row
+	// for (Row row : result) {
+	// // Updating sourceFile by getting source_file from each row
+	// monitorMetadata = row.getString("metadata");
+	// }
+	// session.close();
+	// // return statement
+	// return monitorMetadata;
+	// }
+	public List getListMonitors(Session session) {
+		List list = new LinkedList();
+		ResultSet result = session.execute("select monitor_name from monitor;");
+		// for loop to increment the row
+		for (Row row : result) {
+			// Updating sourceFile by getting source_file from each row
+			list.add(row.getString("monitor_name"));
+		}
+		// System.out.println(result.);
+		session.close();
+		return list;
+	}
+
+	public List getListSchedulers(Session session) {
+		List list = new LinkedList();
+		ResultSet result = session
+				.execute("select scheduler_name from scheduler;");
+		// for loop to increment the row
+		for (Row row : result) {
+			// Updating sourceFile by getting source_file from each row
+			list.add(row.getString("scheduler_name"));
+		}
+		// System.out.println(result.);
+		session.close();
+		return list;
+	}
+	public String getMonitorMetaData(Session session, String monitorName) {
+		String monitorMetaData = null;
+		ResultSet result = session.execute(
+				"select metadata from monitor_metadata where monitor_name ='"
+						+ monitorName + "';");
+		// for loop to increment the row
+		for (Row row : result) {
+			// Updating sourceFile by getting source_file from each row
+			monitorMetaData = row.getString("metadata");
+		}
+		session.close();
+		return monitorMetaData;
+	}
+
+	public String getSchedulerMetaData(Session session, String schedulerName) {
+		String schedulerMetaData = null;
+		ResultSet result = session.execute(
+				"select metadata from scheduler_metadata where scheduler_name ='"
+						+ schedulerName + "';");
+		// for loop to increment the row
+		for (Row row : result) {
+			// Updating sourceFile by getting source_file from each row
+			schedulerMetaData = row.getString("metadata");
+		}
+		session.close();
+		return schedulerMetaData;
 	}
 
 	/**

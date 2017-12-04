@@ -18,6 +18,8 @@ import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 
 public class SFTPOperations {
+	CassandraInteracter cassandraInteracter = new CassandraInteracter();
+	UniqueID uniqueID = new UniqueID();
 
 	public Session sftpConnection(String user, String password, String host) {
 
@@ -43,8 +45,7 @@ public class SFTPOperations {
 		return session;
 
 	}
-	public void uploadFile(Session session, String serverPath,
-			Map<String, String> metaDataMap1,
+	public void uploadFile(Session session, Map<String, String> metaDataMap1,
 			LinkedList<String> filesToUpload) {
 
 		ChannelSftp channelSftp = null;
@@ -64,7 +65,8 @@ public class SFTPOperations {
 		System.out.println("sftp channel opened and connected.");
 		channelSftp = (ChannelSftp) sftpChannel;
 		try {
-			channelSftp.cd(serverPath);
+			System.out.println(metaDataMap1.get("sftpAsDestination"));
+			channelSftp.cd(metaDataMap1.get("sftpAsDestination"));
 		} catch (SftpException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -75,7 +77,23 @@ public class SFTPOperations {
 						+ filesToUpload.get(i));
 				System.out.println(f.getName());
 				try {
+					String sftpTransferId = uniqueID.generateUniqueID();
+					metaDataMap1.put("sftpTransferId", sftpTransferId);
+					metaDataMap1.put("sourceFileName", f.toString());
+					cassandraInteracter.schedulerTransferDetails(
+							cassandraInteracter.connectCassandra(),
+							metaDataMap1);
+					System.out.println("before putting");
 					channelSftp.put(new FileInputStream(f), f.getName());
+					System.out.println("after putting");
+					metaDataMap1.put("destinationFile",
+							metaDataMap1.get("sftpAsDestination") + "\\"
+									+ filesToUpload.get(i));
+					System.out.println(" metadata " + metaDataMap1);
+					cassandraInteracter.updateSchedulerTransferDetails(
+							cassandraInteracter.connectCassandra(),
+							metaDataMap1);
+					System.out.println("File transfered successfully to host.");
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -87,17 +105,15 @@ public class SFTPOperations {
 
 		}
 
-		System.out.println("File transfered successfully to host.");
-
 	}
-	public void downloadFile(String remoteFile, String destinationDirectory,
-			Session session, LinkedList<String> sftpFilesToProcess) {
+	public void downloadFile(Map<String, String> map, Session session,
+			LinkedList<String> sftpFilesToProcess) {
 
 		ChannelSftp sftpChannel = null;
 
 		try {
 			sftpChannel = (ChannelSftp) session.openChannel("sftp");
-			sftpChannel.cd(remoteFile);
+			sftpChannel.cd(map.get("sftpAsSource"));
 		} catch (JSchException | SftpException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -115,15 +131,23 @@ public class SFTPOperations {
 			for (String fileinRemote : sftpFilesToProcess) {
 				System.out.println(fileinRemote);
 				try {
-					out = sftpChannel.get(remoteFile + "//" + fileinRemote);
+					String sftpTransferId = uniqueID.generateUniqueID();
+
+					out = sftpChannel
+							.get(map.get("sftpAsSource") + "//" + fileinRemote);
+					map.put("sftpTransferId", sftpTransferId);
+					map.put("sourceFileName",
+							map.get("sftpAsSource") + "//" + fileinRemote);
+					cassandraInteracter.schedulerTransferDetails(
+							cassandraInteracter.connectCassandra(), map);
 				} catch (SftpException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				FileOutputStream fout = null;
 				try {
-					fout = new FileOutputStream(
-							destinationDirectory + "\\" + fileinRemote);
+					fout = new FileOutputStream(map.get("destinationDirectory")
+							+ "\\" + fileinRemote);
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -131,6 +155,10 @@ public class SFTPOperations {
 
 				try {
 					IOUtils.copyLarge(out, fout);
+					map.put("destinationFile", map.get("destinationDirectory")
+							+ "\\" + fileinRemote);
+					cassandraInteracter.updateSchedulerTransferDetails(
+							cassandraInteracter.connectCassandra(), map);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

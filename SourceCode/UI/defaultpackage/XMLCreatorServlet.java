@@ -1,5 +1,4 @@
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -43,10 +42,13 @@ public class XMLCreatorServlet extends HttpServlet {
 		String pollUnits = request.getParameter("pu");
 		String pollInterval = request.getParameter("pi");
 		String XMLFilePath = request.getParameter("xmlfilename");
+		String sourceDisposition = request.getParameter("sourceDisposition");
+		String destinationExists = request.getParameter("de");
+		String monitorOverWrite = request.getParameter("monitorOverwrite");
 		HashMap<String, String> hashMap = new HashMap<>();
 		hashMap.put("-mn", monitorName);
 		hashMap.put("-jn", jobName);
-		hashMap.put("-sd", sourceDirectory);
+		hashMap.put("sourceDirectory", sourceDirectory);
 		hashMap.put("-tr", sourceTriggerPattern);
 		hashMap.put("-sfp", sourceFilePattern);
 		hashMap.put("-dd", destinationDirectory);
@@ -55,6 +57,10 @@ public class XMLCreatorServlet extends HttpServlet {
 		hashMap.put("-pi", pollInterval);
 		hashMap.put("-gt", XMLFilePath);
 		hashMap.put("-dfp", destinationFilePattern);
+		hashMap.put("-sd", sourceDisposition);
+		hashMap.put("-de", destinationExists);
+		hashMap.put("-f", monitorOverWrite);
+		// hashMap.put("-sd", destinationFilePattern);
 		// System.out.println(hashMap);
 		// System.out.println("username: " + username);
 		// System.out.println("password: " + password);
@@ -73,14 +79,14 @@ public class XMLCreatorServlet extends HttpServlet {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		String string = "-mn " + monitorName + ",-jn " + jobName + ",-pi "
-				+ pollInterval + ",-pu " + pollUnits + ",-dd "
-				+ destinationDirectory + " " + sourceDirectory + ",-tr "
-				+ sourceTriggerPattern + ",-trd " + destinationTriggerPattern
-				+ ",-gt " + XMLFilePath + ",-sfp " + sourceFilePattern;
-		FileWriter fileWriter = new FileWriter("D:\\UIDetails.txt");
-		fileWriter.write(string);
-		fileWriter.close();
+		// String string = "-mn " + monitorName + ",-jn " + jobName + ",-pi "
+		// + pollInterval + ",-pu " + pollUnits + ",-dd "
+		// + destinationDirectory + " " + sourceDirectory + ",-tr "
+		// + sourceTriggerPattern + ",-trd " + destinationTriggerPattern
+		// + ",-gt " + XMLFilePath + ",-sfp " + sourceFilePattern;
+		// FileWriter fileWriter = new FileWriter("D:\\UIDetails.txt");
+		// fileWriter.write(string);
+		// fileWriter.close();
 		Runnable r = new Runnable() {
 			public void run() {
 				// runYourBackgroundTaskHere();
@@ -93,34 +99,13 @@ public class XMLCreatorServlet extends HttpServlet {
 			}
 		};
 		new Thread(r).start();
-		// Example example = new Example();
-		// hashMap.put("monitorName", monitorName);
-		// example.result("-mn "+monitorName+" -jn "+jobName+" -pi
-		// "+pollInterval+" -pu "+pollUnits+" -dd "+destinationDirectory+" "+
-		// sourceDirectory+" -tr "+sourceTriggerPattern+" -trd
-		// "+destinationTriggerPattern+" -gt "+XMLFilePath+" -sfp
-		// "+sourceFilePattern);
-
-		// do some processing here...
-
-		// get response writer
-		// PrintWriter writer = response.getWriter();
-
-		// build HTML code
-		// String htmlRespone = "<html>";
-		// htmlRespone += "<h2>Your username is: " + username + "<br/>";
-		// htmlRespone += "Your password is: " + password + "</h2>";
-		// htmlRespone += "</html>";
-
-		// return response
-		// writer.println(htmlRespone);
 
 		PrintWriter out = response.getWriter();
 		response.setContentType("text/html");
 		out.println("<script type=\"text/javascript\">");
 		out.println("alert('successfully submited');");
 		out.println(
-				"window.open('http://localhost:8080/TestingUI/Open_OFTE_Monitor_XMLCreator_Pages.html','_self')");
+				"window.open('http://localhost:8080/Testing_UI/Open_OFTE_Monitor_XMLCreator_Pages.html','_self')");
 		out.println("</script>");
 
 	}

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -59,7 +60,7 @@ public class TimedMonitor extends TimerTask {
 	CassandraInteracter cassandraInteracter = new CassandraInteracter();
 	KafkaMapData kafkaMapData = new KafkaMapData();
 	Thread t;
-	Timer timer = new Timer();
+	Timer timer;
 
 	/**
 	 * This method is used to calculate the poll time by using poll Interval and
@@ -75,7 +76,7 @@ public class TimedMonitor extends TimerTask {
 			// Initialising monitorName1 with monitorName
 			monitorName1 = monitorName;
 			// Creating an object for Timer class
-			// Timer timer = new Timer();
+			timer = new Timer();
 			System.out.println(interval);
 			System.out.println(pollUnits);
 			// Initialising pollInterval by getting the pollInterval from
@@ -102,6 +103,8 @@ public class TimedMonitor extends TimerTask {
 			System.out.println(pollTime);
 			// Watching the directory at scheduled time interval
 			timer.scheduleAtFixedRate(new TimedMonitor(), 0, pollTime);
+			System.out.println("after scheduleAtFixedRate");
+
 		}
 		// catching the exception for NumberFormatException
 		catch (NumberFormatException numberFormatException) {
@@ -112,6 +115,7 @@ public class TimedMonitor extends TimerTask {
 					"LOGGEREXCEPTION") + log4jStringWriter.toString());
 		}
 	}
+	@SuppressWarnings("unused")
 	@Override
 	/**
 	 * 
@@ -120,7 +124,7 @@ public class TimedMonitor extends TimerTask {
 		try {
 			System.out.println(Thread.currentThread().getName()
 					+ " before set thread name");
-			if (Thread.currentThread().getName().equalsIgnoreCase("Timer-0")) {
+			if (Thread.currentThread().getName().contains("Timer-")) {
 				Thread.currentThread().setName(monitorName1);
 				System.out.println(Thread.currentThread().getName()
 						+ " after setting name");
@@ -130,18 +134,30 @@ public class TimedMonitor extends TimerTask {
 				String monitorStatus = cassandraInteracter.DBMonitorCheck(
 						cassandraInteracter.connectCassandra(),
 						Thread.currentThread().getName());
-				if (monitorStatus.equalsIgnoreCase("deleted")) {
-					timer.cancel();
-					Thread.currentThread().destroy();
-					System.out.println("entered in monitor thread destroy");
-					// cassandraInteracter.deletingThread(cassandraInteracter.connectCassandra(),
-					// metaDataMap.get("monitorName"));
-					// System.exit(0);
+				// if (monitorStatus != null) {
+				if (monitorStatus.equalsIgnoreCase("paused")) {
+					return;
 				}
+				if (monitorStatus.equalsIgnoreCase("deleted")) {
+					// if (timer != null) {
+					System.out.println("entered in timer cancel");
+
+					cassandraInteracter.deleteMonitor(
+							cassandraInteracter.connectCassandra(),
+							Thread.currentThread().getName());
+
+					Thread.currentThread().sleep(pollTime);
+					Thread.currentThread().stop();
+
+				}
+
 			} catch (NoSuchFieldException e2) {
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
 			} catch (SecurityException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			} catch (InterruptedException e2) {
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
 			}
@@ -164,6 +180,25 @@ public class TimedMonitor extends TimerTask {
 										.toString());
 
 			}
+			// have to add the code to retrieve data from the cassandra db
+			if (metaDataMap == null) {
+				System.out.println("retrieving data from cassandra database");
+				String monitorMetaData = cassandraInteracter.getMonitorMetaData(
+						cassandraInteracter.connectCassandra(), monitorName1);
+				String[] cassandraMapDataArrays = monitorMetaData.split(",");
+				// for loop to put the values into Map object
+				for (int j = 0; j < cassandraMapDataArrays.length; j++) {
+					metaDataMap.put(
+							(cassandraMapDataArrays[j].substring(0,
+									(cassandraMapDataArrays[j].indexOf("="))))
+											.toString(),
+							((cassandraMapDataArrays[j].substring(
+									cassandraMapDataArrays[j].indexOf("=")
+											+ 1))).toString());
+
+				}
+
+			}
 			// try {
 			// if (cassandraInteracter.DBMonitorCheck(
 			// cassandraInteracter.connectCassandra(),
@@ -183,6 +218,7 @@ public class TimedMonitor extends TimerTask {
 			// }
 			// Creating an object for File class and initialising it with
 			// sourceDirectory by getting the values from metaDataMap
+			// Presource
 			file = new File(metaDataMap.get("sourceDirectory"));
 			System.out.println("Timer created for::" + file);
 			// Declaration of parameter numberOfFiles and initialising it with
@@ -306,6 +342,18 @@ public class TimedMonitor extends TimerTask {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

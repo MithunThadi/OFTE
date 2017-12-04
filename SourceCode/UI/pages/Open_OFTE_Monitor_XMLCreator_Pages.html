@@ -128,7 +128,7 @@ width:90%;
   <tr>
     <td>
       <h1 style="text-align:center;">OFTE EXPLORER</h1>
-      <div id="button1"><a href="http://localhost:8080/TestingUI/Open_OFTE_Transfer_Pages.html">GO TO HOME PAGE</a></div>
+      <div id="button1"><a href="http://localhost:8080/Testing_UI/Open_OFTE_Transfer_Pages.html">GO BACK</a></div>
     </td>
     </tr>
     </table>
@@ -153,6 +153,8 @@ width:90%;
 <label for="Destination Trigger Pattern">Destination Trigger Pattern:</label><input type="text" name="dtp"><br><br />
 </fieldset>
 </div>
+
+
 
 <div>
 <fieldset>
@@ -267,6 +269,40 @@ width:90%;
 </fieldset>
 </div>
 
+<br><br/>
+
+<label for="SourceDisposition">Source Disposition:</label>
+  
+<select name="sourceDisposition">
+<option selected="" value="Default">Select</option>
+<option> leave</option>
+<option> delete</option>
+
+</select>
+<br><br />
+
+<label for="DestinationExists">Destination Exists:</label>
+  
+<select name="de">
+<option selected="" value="Default">Select</option>
+<option> overwrite</option>
+<option> error</option>
+
+</select>
+<br><br />
+
+<label for="MonitorOverWrite">Monitor Overwrite</label>
+  
+<select name="monitorOverwrite">
+<option selected="" value="Default">Select</option>
+<option> Yes</option>
+<option> No</option>
+
+</select>
+<br><br />
+
+
+<br><br />
 <label for="Monitor XML File Name">Monitor XML File Name:</label>  <input type="text" name="xmlfilename" placeholder="Absolute XML Path"><br><br />
 
 <input type="submit" value="submit" />

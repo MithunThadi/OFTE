@@ -32,7 +32,7 @@ public class ScheduledTransferRemoteasDestination extends HttpServlet {
 
 		// read form fields
 		String schedulername = request.getParameter("schedulername");
-		// String jobName = request.getParameter("jname");
+		String jobName = request.getParameter("jname");
 		String sourceDirectory = request.getParameter("sd");
 		String sourceTriggerPattern = request.getParameter("stp");
 		String sourceFilePattern = request.getParameter("sfp");
@@ -48,8 +48,8 @@ public class ScheduledTransferRemoteasDestination extends HttpServlet {
 		// String XMLFilePath = request.getParameter("xmlfilename");
 		HashMap<String, String> hashMap = new HashMap<>();
 		hashMap.put("-sn", schedulername);
-		// hashMap.put("-jn", jobName);
-		hashMap.put("-sd", sourceDirectory);
+		hashMap.put("-jn", jobName);
+		hashMap.put("sourceDirectory", sourceDirectory);
 		hashMap.put("-tr", sourceTriggerPattern);
 		hashMap.put("-sfp", sourceFilePattern);
 		hashMap.put("-sftp-d", destinationDirectory);
@@ -127,7 +127,7 @@ public class ScheduledTransferRemoteasDestination extends HttpServlet {
 		out.println("<script type=\"text/javascript\">");
 		out.println("alert('successfully submited');");
 		out.println(
-				"window.open('http://localhost:8080/TestingUI/Open_OFTE_Scheduled_Transfers_Page.html','_self')");
+				"window.open('http://localhost:8080/Testing_UI/Open_OFTE_Scheduled_Transfers_Page.html','_self')");
 		out.println("</script>");
 
 	}

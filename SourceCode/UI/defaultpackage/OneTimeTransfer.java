@@ -31,8 +31,8 @@ public class OneTimeTransfer extends HttpServlet {
 		// TODO Auto-generated method stub
 
 		// read form fields
-		String monitorName = request.getParameter("mn");
-		// String jobName = request.getParameter("jname");
+		// String monitorName = request.getParameter("mn");
+		String jobName = request.getParameter("jname");
 		String sourceDirectory = request.getParameter("sd");
 		String sourceTriggerPattern = request.getParameter("stp");
 		String sourceFilePattern = request.getParameter("sfp");
@@ -43,9 +43,9 @@ public class OneTimeTransfer extends HttpServlet {
 		// String pollInterval = request.getParameter("pi");
 		// String XMLFilePath = request.getParameter("xmlfilename");
 		HashMap<String, String> hashMap = new HashMap<>();
-		hashMap.put("-mn", monitorName);
-		// hashMap.put("-jn", jobName);
-		hashMap.put("-sd", sourceDirectory);
+		// hashMap.put("-mn", monitorName);
+		hashMap.put("-jn", jobName);
+		hashMap.put("sourceDirectory", sourceDirectory);
 		hashMap.put("-tr", sourceTriggerPattern);
 		hashMap.put("-sfp", sourceFilePattern);
 		hashMap.put("-dd", destinationDirectory);
@@ -119,7 +119,7 @@ public class OneTimeTransfer extends HttpServlet {
 		out.println("<script type=\"text/javascript\">");
 		out.println("alert('successfully submited');");
 		out.println(
-				"window.open('http://localhost:8080/TestingUI/Open_OFTE_OneTimeTransfer_Pages.html','_self')");
+				"window.open('http://localhost:8080/Testing_UI/Open_OFTE_OneTimeTransfer_Pages.html','_self')");
 		out.println("</script>");
 
 	}

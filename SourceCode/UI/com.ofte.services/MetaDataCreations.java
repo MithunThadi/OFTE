@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 
+import javax.naming.directory.InvalidAttributesException;
+
 import org.apache.kafka.clients.consumer.internals.NoAvailableBrokersException;
 import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
@@ -138,7 +140,7 @@ public class MetaDataCreations {
 							metaData.getValue().toString());
 				} else if (metaData.getKey().equals("-jn")) {
 					metaDataMap.put("jobName", metaData.getValue().toString());
-				} else if (metaData.getKey().equals("-sd")) {
+				} else if (metaData.getKey().equals("sourceDirectory")) {
 					metaDataMap.put("sourceDirectory",
 							metaData.getValue().toString());
 				} else if (metaData.getKey().equals("-sftp-s")) {
@@ -157,7 +159,10 @@ public class MetaDataCreations {
 					metaDataMap.put("destinationDirectory",
 							metaData.getValue().toString());
 				} else if (metaData.getKey().equals("-trd")) {
-					metaDataMap.put("triggerDestination",
+					metaDataMap.put("destinationTriggerPattern",
+							metaData.getValue().toString());
+				} else if (metaData.getKey().equals("-dfp")) {
+					metaDataMap.put("destinationFilePattern",
 							metaData.getValue().toString());
 				} else if (metaData.getKey().equals("-pu")) {
 					metaDataMap.put("pollUnits",
@@ -176,7 +181,29 @@ public class MetaDataCreations {
 					metaDataMap.put("password", metaData.getValue().toString());
 				} else if (metaData.getKey().equals("-po")) {
 					metaDataMap.put("port", metaData.getValue().toString());
+				} else if (metaData.getKey().equals("-sd")) {
+					metaDataMap.put("sourceDisposition",
+							metaData.getValue().toString());
+				} else if (metaData.getKey().equals("-de")) {
+					metaDataMap.put("destinationExists",
+							metaData.getValue().toString());
+				} else if (metaData.getKey().equals("-f")) {
+					metaDataMap.put("monitorOverWrite",
+							metaData.getValue().toString());
+				} else if (metaData.getKey().equals("-preSrc")) {
+					metaDataMap.put("preSource",
+							metaData.getValue().toString());
+				} else if (metaData.getKey().equals("-preDst")) {
+					metaDataMap.put("preDestination",
+							metaData.getValue().toString());
+				} else if (metaData.getKey().equals("-postSrc")) {
+					metaDataMap.put("postSource",
+							metaData.getValue().toString());
+				} else if (metaData.getKey().equals("-postDst")) {
+					metaDataMap.put("postDestination",
+							metaData.getValue().toString());
 				}
+
 			}
 		}
 		// catching the exception for InvalidAttributesException
@@ -212,15 +239,70 @@ public class MetaDataCreations {
 				metaDataMap = mapUpdater(i, hashMap, metaDataMap);
 			}
 			System.out.println(metaDataMap + " after mapupdater");
-			// System.out.println(metaDataMap.get("monitorName"));
-			// System.out.println(metaDataMap.get("xmlFilePath"));
-			// System.out.println(metaDataMap.get("monitorName"));
-			// System.out.println(metaDataMap.get("schedulerName"));
+
+			// preSource Condition
+			// if(metaDataMap.get("preSource") != null) {
+			// String className = ((metaDataMap.get("preSource")).substring(0,
+			// (metaDataMap.get("preSource")).indexOf("|")));
+			// }
+
 			// Creating an object for XMLCreator class
 			XMLCreator xmlCreator = new XMLCreator();
 
 			if (metaDataMap.get("xmlFilePath") == null
-					&& metaDataMap.get("schedulerName") == null) {
+					&& metaDataMap.get("monitorName") == null) {
+				if (metaDataMap.get("schedulerName") == null) {
+					if (metaDataMap.get("sourceDirectory") != null
+							&& metaDataMap.get("triggerPattern") != null) {
+
+						OneTimeTransfer oneTimeTransfer = new OneTimeTransfer();
+						oneTimeTransfer.transfer(metaDataMap);
+					} else {
+						System.out.println("in one time transfer");
+						throw new InvalidAttributesException();
+					}
+				} else {
+					if (metaDataMap.get("schedulerName") != null
+							&& metaDataMap.get("jobName") != null
+							&& metaDataMap.get("hostIp") != null
+							&& metaDataMap.get("userName") != null
+							&& metaDataMap.get("password") != null
+							&& metaDataMap.get("port") != null) {
+						cassandraInteracter.schedulerStarting(
+								cassandraInteracter.connectCassandra(),
+								metaDataMap.get("schedulerName"));
+
+						// SFTPOperations sftpOperations=new SFTPOperations();
+						// sftpOperations.downloadFile(metaDataMap.get("sftpAsSource"));
+						String schedulerTopicName = "Scheduler_MetaData_"
+								+ metaDataMap.get("schedulerName");
+
+						// Publishing map data
+						kafkaMapData.publish(schedulerTopicName,
+								metaDataMap.get("schedulerName"),
+								metaDataMap.toString().substring(1,
+										metaDataMap.toString().length() - 1)
+										.replace(" ", ""));
+						cassandraInteracter.insertScheduleMetaData(
+								cassandraInteracter.connectCassandra(),
+								metaDataMap.get("schedulerName"),
+								metaDataMap.toString().substring(1,
+										metaDataMap.toString().length() - 1)
+										.replace(" ", ""));
+
+						SFTPTimedMonitor sftpTimedMonitor = new SFTPTimedMonitor();
+						sftpTimedMonitor.timerAccess(
+								metaDataMap.get("schedulerName"),
+								metaDataMap.get("pollInterval"),
+								metaDataMap.get("pollUnits"));
+						System.out.println("sftp done successfully");
+					} else {
+						System.out.println("in sftp");
+						throw new InvalidAttributesException();
+					}
+
+				}
+
 				if (cassandraInteracter.DBMonitorCheck(
 						cassandraInteracter.connectCassandra(),
 						metaDataMap.get("monitorName")) == null) {
@@ -228,98 +310,73 @@ public class MetaDataCreations {
 							cassandraInteracter.connectCassandra(),
 							metaDataMap.get("monitorName"));
 				}
-				OneTimeTransfer oneTimeTransfer = new OneTimeTransfer();
-				oneTimeTransfer.transfer(metaDataMap);
+
 			} else if (metaDataMap.get("xmlFilePath") != null
 					&& metaDataMap.get("monitorName") != null) {
-				// Creating the xml file as per given command
-				try {
+				if (metaDataMap.get("jobName") != null
+						&& metaDataMap.get("sourceDirectory") != null
+						&& metaDataMap.get("triggerPattern") != null
+						&& metaDataMap.get("pollInterval") != null
+						&& metaDataMap.get("pollUnits") != null) {
+					// Creating the xml file as per given command
+
 					xmlCreator.access(metaDataMap);
 					if (cassandraInteracter.DBMonitorCheck(
 							cassandraInteracter.connectCassandra(),
-							metaDataMap.get("monitorName")) == null) {
+							metaDataMap.get("monitorName")) == null
+							|| metaDataMap.get("monitorOverWrite")
+									.equalsIgnoreCase("Yes")) {
 						cassandraInteracter.starting(
 								cassandraInteracter.connectCassandra(),
 								metaDataMap.get("monitorName"));
+
+						// declaration of parameter mapTopicName and
+						// initialising
+						// the
+						// mapTopicName with monitor name
+						String mapTopicName = "Monitor_MetaData_"
+								+ metaDataMap.get("monitorName");
+
+						// Publishing map data
+						kafkaMapData.publish(mapTopicName,
+								metaDataMap.get("monitorName"),
+								metaDataMap.toString().substring(1,
+										metaDataMap.toString().length() - 1)
+										.replace(" ", ""));
+						// have to add code to insert data in cassandra
+						cassandraInteracter.insertMonitorMetaData(
+								cassandraInteracter.connectCassandra(),
+								metaDataMap.get("monitorName"),
+								metaDataMap.toString().substring(1,
+										metaDataMap.toString().length() - 1)
+										.replace(" ", ""));
+
+						// Creating an object for TimedMonitor class
+						TimedMonitor timedMonitor = new TimedMonitor();
+						// initialising the poll time by taking pollInterval and
+						// pollunits
+						timedMonitor.timerAccess(metaDataMap.get("monitorName"),
+								metaDataMap.get("pollInterval"),
+								metaDataMap.get("pollUnits"));
+					} else {
+						throw new Exception("Monitor "
+								+ metaDataMap.get("monitorName")
+								+ "already exists click for MonitorOverwrite to override the previous one");
 					}
 
-				} catch (SAXException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				}
 
-				// declaration of parameter mapTopicName and initialising
-				// the
-				// mapTopicName with monitor name
-				String mapTopicName = "Monitor_MetaData_"
-						+ metaDataMap.get("monitorName");
-
-				// if(cassandraInteracter.DBMonitorCheck(cassandraInteracter.connectCassandra(),
-				// metaDataMap.get("monitorName")) == null ||
-				// metaDataMap.get("monitorOverride").equalsIgnoreCase("true"))
-				// {
-				// cassandraInteracter.starting(cassandraInteracter.connectCassandra(),
-				// metaDataMap.get("monitorName"));
-				// }
-
-				// Publishing map data
-				kafkaMapData.publish(mapTopicName,
-						metaDataMap.get("monitorName"),
-						metaDataMap.toString().replace("{", "").replace("}", "")
-								.replace(" ", ""));
-				// have to add code to insert data in cassandra
-				cassandraInteracter.insertMonitorMetaData(
-						cassandraInteracter.connectCassandra(),
-						metaDataMap.get("monitorName"),
-						metaDataMap.toString().replace("{", "").replace("}", "")
-								.replace(" ", ""));
-
-				// Creating an object for TimedMonitor class
-				TimedMonitor timedMonitor = new TimedMonitor();
-				// initialising the poll time by taking pollInterval and
-				// pollunits
-				timedMonitor.timerAccess(metaDataMap.get("monitorName"),
-						metaDataMap.get("pollInterval"),
-						metaDataMap.get("pollUnits"));
-			} else if (metaDataMap.get("sftpAsSource") != null
-					|| metaDataMap.get("sftpAsDestination") != null) {
-				if (metaDataMap.get("monitorName") == null) {
-
-					cassandraInteracter.schedulerStarting(
-							cassandraInteracter.connectCassandra(),
-							metaDataMap.get("schedulerName"));
-
-					// SFTPOperations sftpOperations=new SFTPOperations();
-					// sftpOperations.downloadFile(metaDataMap.get("sftpAsSource"));
-					String schedulerTopicName = "Scheduler_MetaData_"
-							+ metaDataMap.get("schedulerName");
-
-					// Publishing map data
-					kafkaMapData.publish(schedulerTopicName,
-							metaDataMap.get("schedulerName"),
-							metaDataMap.toString().replace("{", "")
-									.replace("}", "").replace(" ", ""));
-					cassandraInteracter.insertScheduleMetaData(
-							cassandraInteracter.connectCassandra(),
-							metaDataMap.get("schedulerName"),
-							metaDataMap.toString().replace("{", "")
-									.replace("}", "").replace(" ", ""));
-
-					SFTPTimedMonitor sftpTimedMonitor = new SFTPTimedMonitor();
-					sftpTimedMonitor.timerAccess(
-							metaDataMap.get("schedulerName"),
-							metaDataMap.get("pollInterval"),
-							metaDataMap.get("pollUnits"));
-					System.out.println("sftp done successfully");
-
-				} else {
-					System.out.println("please remove monitor name");
+				else {
+					throw new InvalidAttributesException();
 				}
 
 			}
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		// catching the exception for NoHostAvailableException
 		catch (NoHostAvailableException noHostAvailableException) {

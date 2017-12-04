@@ -6,7 +6,7 @@ java.util.*,java.sql.*"%>
 
 <html>
 <head>
-<title>DeleteMonitor</title>
+<title>DeleteScheduler</title>
 <style>
 body {
 font-family:sans-serif;
@@ -130,7 +130,7 @@ width:90%;
   <tr>
     <td>
       <h1 style="text-align:center;">OFTE EXPLORER</h1>
-      <div id="button1"><a href="http://localhost:8080/TestingUI/Open_OFTE_MainHome_Pages.html">GO TO HOME PAGE</a></div>
+      <div id="button1"><a href="http://localhost:8080/Testing_UI/Open_OFTE_MainHome_Pages.html">GO TO HOME PAGE</a></div>
     </td>
     </tr>
     </table>
@@ -146,20 +146,20 @@ width:90%;
  con = DriverManager.getConnection("jdbc:cassandra://127.0.0.1:9160/ofte");
  
  Statement stmt = con.createStatement();
- ResultSet rs=stmt.executeQuery("select monitor_name from monitor");
- //ResultSet rs1=stmt.executeQuery("select scheduler_name from scheduler");
+ //ResultSet rs=stmt.executeQuery("select monitor_name from monitor");
+ ResultSet rs1=stmt.executeQuery("select scheduler_name from scheduler");
  
  //ResultSet rs1 = stmt.executeQuery("select * from monitor_metadata where monitor_name ="+rs.getString(1));
  %>
  
- <form name="form" id="form" class="modal-content" method="post" action="DeleteMonitor">
+ <form name="form" id="form" class="modal-content" method="post" action="DeleteScheduler">
  <center>
  <br><br>
-    <label for="MonitorNames">MonitorNames:</label> 
-        <select name="monitorname">
-        <option selected="" value="Default">Select</option>
-        <%  while(rs.next()){ %>
-            <option><%= rs.getString(1)%></option>
+    <label for="SchedulerNames">SchedulerNames:</label> 
+        <select name="schedulerName">
+        <option selected="" value="">Select</option>
+        <%  while(rs1.next()){ %>
+            <option><%= rs1.getString(1)%></option>
         <% } %>
         
         </select>

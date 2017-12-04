@@ -136,7 +136,7 @@ a:hover {
     	    // exclude column heading
     	    if (row.rowIndex > 0) {
     	      dataTable.addRow([
-    	        { v: (row.cells[6].textContent || row.cells[6].innerHTML).trim() },
+    	        { v: (row.cells[5].textContent || row.cells[5].innerHTML).trim() },
     	        { v: 1}
     	      ]);
     	    }
@@ -164,7 +164,7 @@ a:hover {
   <tr>
     <td>
       <h1 style="text-align:center;">OFTE EXPLORER</h1>
-      <div id="button1"><a href="http://localhost:8080/TestingUI/Open_OFTE_MainHome_Pages.html">GO TO HOME PAGE</a></div>
+      <div id="button1"><a href="http://localhost:8080/Testing_UI/Open_OFTE_MainHome_Pages.html">GO TO HOME PAGE</a></div>
     </td>
     </tr>
     </table>
@@ -175,20 +175,37 @@ a:hover {
  <%
  Connection con = null;
  try{
+	 HashMap<String, String> replayMap = new HashMap<String, String>();
  Class.forName("org.apache.cassandra.cql.jdbc.CassandraDriver");
  con = DriverManager.getConnection("jdbc:cassandra://127.0.0.1:9160/ofte");
  
  Statement stmt = con.createStatement();
  ResultSet rs=stmt.executeQuery("select * from monitor_transfer");
  %>
+ 
  <table id="ofte">
  <tr>
- <th>Transfer_Id</th><th>Current_Timestamp</th><th>Job_Name</th><th>Monitor_Name</th><th>Source_File</th><th>Target_File</th><th>Transfer_Status</th>
+ <th>Transfer_Id</th>
+ <th>Current_Timestamp</th>
+ <th>Job_Name</th>
+ <th>Source_File</th>
+ <th>Target_File</th>
+ <th>Transfer_Status</th>
+ <th>replay<th>
   
  </tr>
  
 <%while(rs.next()) {
-out.println("<tr><td>"+rs.getString(1)+"</td><td>"+rs.getString(2)+"</td><td>"+rs.getString(3)+"</td><td>"+rs.getString(4)+"</td> <td>"+rs.getString(5)+"</td><td>"+rs.getString(6)+"</td><td>"+rs.getString(7)+"</td></tr>"); 
+	String submit = "submit" , replay = "Replay" ,actionForm = "actionForm";
+	String transferId = "transferId", hidden = "hidden";
+	if (("success").equalsIgnoreCase(rs.getString(6))){
+		out.println("<tr><td>"+rs.getString(1)+"</td><td>"+rs.getString(2)+"</td><td>"+rs.getString(3)+"</td><td>"+rs.getString(4)+"</td> <td>"+rs.getString(5)+"</td><td>"+rs.getString(6)+"</td></tr>"); 
+		//System.out.println(request.getAttribute("transferId"));
+		}else{
+			request.setAttribute("transferId", rs.getString(1));
+			out.println("<tr><td>"+rs.getString(1)+"</td><td>"+rs.getString(2)+"</td><td>"+rs.getString(3)+"</td><td>"+rs.getString(4)+"</td> <td>"+rs.getString(5)+"</td><td>"+rs.getString(6)+"</td><td><form NAME="+actionForm+" action="+replay+" method='post'><input type="+hidden+" name="+transferId+" value="+rs.getString(1)+"><input type="+submit+" value = "+replay+"></form></td></tr>"); 
+			//System.out.println(request.getAttribute("transferId"));
+	}
 }%>
 <%
 out.println("</table>");

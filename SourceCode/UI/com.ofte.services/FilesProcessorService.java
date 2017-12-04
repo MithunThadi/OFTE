@@ -16,6 +16,7 @@ import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.exception.ZkException;
 import org.I0Itec.zkclient.exception.ZkMarshallingError;
 import org.I0Itec.zkclient.serialize.ZkSerializer;
+import org.apache.commons.io.FileUtils;
 import org.apache.kafka.clients.consumer.internals.NoAvailableBrokersException;
 import org.apache.log4j.Logger;
 
@@ -71,6 +72,7 @@ public class FilesProcessorService {
 	// Creating an object for CassandraInteracter class
 	CassandraInteracter cassandraInteracter = new CassandraInteracter();
 	KafkaServerService kafkaServerService = new KafkaServerService();
+	UserExitPoints userExitPoints = new UserExitPoints();
 
 	/**
 	 * This method is used to publish the data
@@ -174,11 +176,31 @@ public class FilesProcessorService {
 					cassandraInteracter.connectCassandra(), transferMetaData);
 			// closing th producer
 			producer.close();
+
+			metadata.put("preDestination", "ADD|1|2~SUB|4|1|1");
+			// preDestination Condition
+			if (metadata.get("preDestination") != null) {
+				String preDestination = metadata.get("preDestination");
+				int result = userExitPoints.accessExitPoint(preDestination,
+						metadata, transferMetaData);
+				System.out.println(result);
+			}
+
 			System.out.println(TOPIC + " " + metadata + " " + transferMetaData);
 			// Invoking the consume method
 			consume(TOPIC, metadata, cassandraInteracter.connectCassandra(),
 					transferMetaData);
 			System.out.println("Consumed Successfully: " + TOPIC);
+
+			metadata.put("postDestination", "ADD|1|2~SUB|4|1|1");
+			// postDestination Condition
+			if (metadata.get("postDestination") != null) {
+				String postDestination = metadata.get("postDestination");
+				int result = userExitPoints.accessExitPoint(postDestination,
+						metadata, transferMetaData);
+				System.out.println(result);
+			}
+
 			//// Updating the database
 			cassandraInteracter.updateTransferDetails(
 					cassandraInteracter.connectCassandra(), transferMetaData,
@@ -242,13 +264,6 @@ public class FilesProcessorService {
 			logger.error(loadProperties.getOFTEProperties().getProperty(
 					"LOGGEREXCEPTION") + log4jStringWriter.toString());
 		}
-		// catching the exception for Exception
-		// catch (Exception e) {
-		// e.printStackTrace(new PrintWriter(log4jStringWriter));
-		// //logging the exception for Exception
-		// logger.error(loadProperties.getOFTEProperties().getProperty("LOGGEREXCEPTION")
-		// + log4jStringWriter.toString());
-		// }
 	}
 	/**
 	 * This method is used to consume the data
@@ -263,30 +278,7 @@ public class FilesProcessorService {
 		try {
 			// Creation of Map object
 			Map<String, Integer> topicCount = new HashMap<String, Integer>();
-			// Creation of Properties object
-			// System.out.println(kafkaServerService.getId());
-			// Properties properties = new Properties();
-			// properties.put("zookeeper.connect",
-			// transferMetaData.get("zkport") );
-			// properties.put("group.id", transferMetaData.get("id") );
-			// properties.put("enable.auto.commit",loadProperties.getKafkaProperties().getProperty("ENABLE.AUTO.COMMIT"));
-			// properties.put("auto.commit.interval.ms",
-			// loadProperties.getKafkaProperties().getProperty("AUTO.COMMIT.INTERVAL.MS"));
-			// properties.put("auto.offset.reset",
-			// loadProperties.getKafkaProperties().getProperty("AUTO.OFFSET.RESET"));
-			// properties.put("session.timeout.ms",
-			// loadProperties.getKafkaProperties().getProperty("SESSION.TIMEOUT.MS"));
-			// properties.put("key.deserializer",
-			// loadProperties.getKafkaProperties().getProperty("KEY.DESERIALIZER"));
-			// properties.put("value.deserializer",
-			// loadProperties.getKafkaProperties().getProperty("VALUE.DESERIALIZER"));
-			// properties.put("fetch.message.max.bytes",
-			// loadProperties.getKafkaProperties().getProperty("FETCH.MESSAGE.MAX.BYTES"));
-			// System.out.println(kafkaServerService.getZKAddress());
-			// System.out.println(properties);
-			// //Creation of ConsumerConfig object
-			// ConsumerConfig conConfig = new ConsumerConfig(properties);
-			// Creating the consumerConnector
+
 			ConsumerConfig conConfig = kafkaServerService.getConsumerConfig();
 			consumerConnector = kafka.consumer.Consumer
 					.createJavaConsumerConnector(conConfig);
@@ -304,18 +296,24 @@ public class FilesProcessorService {
 				ConsumerIterator<byte[], byte[]> consumerIterator = kafkaStreams
 						.iterator();
 				// Inserting destinationDirectory to transferMetaData
-				transferMetaData.put("destinationFile",
-						metadata.get("destinationDirectory") + "\\" + TOPIC);
+				// transferMetaData.put("destinationFile",
+				// metadata.get("destinationDirectory") + "\\" + TOPIC);
 				// Declaration of parameter FileWriter
 				FileWriter destinationFileWriter;
 				// while loop to iterate consumerIterator
 				while (consumerIterator.hasNext()) {
 					try {
+						File createDirectory = new File(
+								metadata.get("destinationDirectory"));
+						if (!createDirectory.exists()) {
+
+							FileUtils.forceMkdir(createDirectory);
+						} else {
+							System.out.println("failed to create directory");
+						}
 						// Creating an object for FileWriter class
-						destinationFileWriter = new FileWriter(
-								new File(metadata.get("destinationDirectory")
-										+ "\\" + TOPIC),
-								true);
+						destinationFileWriter = new FileWriter(new File(
+								transferMetaData.get("destinationFile")), true);
 						// Writing the kafka messages to destination file
 						destinationFileWriter.write(
 								new String(consumerIterator.next().message()));
@@ -387,8 +385,9 @@ public class FilesProcessorService {
 	 * @param transferMetaData
 	 */
 	public void getMessages(ZkClient zkClient, ZkUtils zkUtils,
-			String sourceFile, Map<String, String> metadata,
+			Map<String, String> metadata,
 			Map<String, String> transferMetaData) {
+		String sourceFile = transferMetaData.get("sourceFileName");
 		// Declaration of parameter delimiter
 		String delimiter = "\\\\";
 		// Creating an object for File class
@@ -462,8 +461,18 @@ public class FilesProcessorService {
 			publishCount = 0;
 			subscribeCount = 0;
 			// Creating an object for Acknowledgement class
-			// Acknowledgement acknowledgement=new Acknowledgement();
-			// acknowledgement.acknowledge(transferMetaData, metadata);
+			Acknowledgement acknowledgement = new Acknowledgement();
+			acknowledgement.acknowledge(transferMetaData, metadata);
+
+			metadata.put("postSource", "ADD|1|2~SUB|4|1|1");
+			// postSource Condition
+			if (metadata.get("postSource") != null) {
+				String postSource = metadata.get("postSource");
+				int result = userExitPoints.accessExitPoint(postSource,
+						metadata, transferMetaData);
+				System.out.println(result);
+			}
+
 		}
 		// catching the exception for FileNotFoundException
 		catch (FileNotFoundException fileNotFoundException) {

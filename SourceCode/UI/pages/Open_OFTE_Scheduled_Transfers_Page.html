@@ -137,7 +137,7 @@ width:90%;
   <tr>
     <td>
       <h1 style="text-align:center;">OFTE EXPLORER</h1>
-      <div id="button1"><a href="http://localhost:8080/TestingUI/Open_OFTE_Transfer_Pages.html">GO TO HOME PAGE</a></div>
+      <div id="button1"><a href="http://localhost:8080/Testing_UI/Open_OFTE_Transfer_Pages.html">GO BACK</a></div>
     </td>
     </tr>
     </table>
@@ -154,9 +154,11 @@ width:90%;
 </label>
 <div id="sd" style="display: none">
 <form name="form" id="form" class="modal-content" method="post" action="ScheduledTransferRemoteasSource">
+
+<label for="Job Name">Job Name:</label>  <input type="text" name="jname"><br><br />
+<label for="Scheduler Name">Scheduler Name:</label><input type="text" name="schedulername" /><br><br>
 <fieldset>
 <legend>Remote Source Details</legend>
-<label for="Scheduler Name">Scheduler Name:</label><input type="text" name="schedulername" /><br><br>
 <label for="Source Directory">Source Directory:</label> <input type="text" name="sd" /><br><br>
 <label for="Source File Pattern">Source File Pattern:</label> <input type="text" name="sfp" /><br><br>
 <label for="Source Trigger Pattern">Source Trigger Pattern:</label> <input type="text" name="stp" /><br><br>
@@ -170,9 +172,7 @@ width:90%;
  <label for="Port">  Port: </label><input type="text" name="port" /><br><br>
  </fieldset>
  <fieldset>
-<legend>Destination Details</legend>
-  
- <label for="Scheduler Name">  Scheduler Name:</label><input type="text" name="schedulername" /><br><br> 
+<legend>Destination Details</legend> 
 <label for="Destination Directory">  Destination Directory:</label> <input type="text" name="dd" /><br><br>
 <label for="Destination File Pattern">   Destination File Pattern:</label> <input type="text" name="dfp" /><br><br>
 <label for="Destination Trigger Pattern">   Destination Trigger Pattern: </label><input type="text" name="dtp" /><br><br>
@@ -296,17 +296,17 @@ width:90%;
 
 <div id="dd" style="display: none">
  <form name="form" id="form" class="modal-content" method="post" action="ScheduledTransferRemoteasDestination">
+ 
+ <label for="Job Name">Job Name:</label>  <input type="text" name="jname"><br><br />
+ <label for="Scheduler Name">Scheduler Name:</label><input type="text" name="schedulername" /><br><br>
  <fieldset>
 <legend>Source Details</legend>
- <label for="Scheduler Name">  Scheduler Name:</label><input type="text" name="schedulername" /><br><br>
 <label for=" Source Directory">   Source Directory:</label> <input type="text" name="sd" /><br><br>
  <label for=" Source File Pattern">  Source File Pattern:</label> <input type="text" name="sfp" /><br><br>
  <label for="Source Trigger Pattern">  Source Trigger Pattern:</label> <input type="text" name="stp" /><br><br>
  </fieldset>
 <fieldset>
-<legend>Remote Destination Details</legend>
-  
- <label for=" Scheduler Name">  Scheduler Name:</label><input type="text" name="schedulername" /><br><br> 
+<legend>Remote Destination Details</legend> 
  <label for=" Destination Directory">  Destination Directory:</label> <input type="text" name="dd" /><br><br>
  <label for="Destination File Pattern">  Destination File Pattern:</label> <input type="text" name="dfp" /><br><br>
   <label for="Destination Trigger Pattern"> Destination Trigger Pattern:</label> <input type="text" name="dtp" /><br><br>
