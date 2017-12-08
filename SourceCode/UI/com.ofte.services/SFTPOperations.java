@@ -137,7 +137,7 @@ public class SFTPOperations {
 							.get(map.get("sftpAsSource") + "//" + fileinRemote);
 					map.put("sftpTransferId", sftpTransferId);
 					map.put("sourceFileName",
-							map.get("sftpAsSource") + "//" + fileinRemote);
+							map.get("sftpAsSource") + "/" + fileinRemote);
 					cassandraInteracter.schedulerTransferDetails(
 							cassandraInteracter.connectCassandra(), map);
 				} catch (SftpException e) {

@@ -77,28 +77,30 @@ public class ProcessFiles {
 							destinationFilePath + " destination file check");
 
 					File destinationFileCheck = new File(destinationFilePath);
+					if (metaDataMap.get("destinationExists") != null) {
+						if (destinationFileCheck.exists() && metaDataMap
+								.get("destinationExists").toString()
+								.equalsIgnoreCase("overWrite")) {
+							System.out.println("enterd in over write");
+							// destinationFileCheck.delete();
+							FileUtils.forceDelete(destinationFileCheck);
+						} else if (destinationFileCheck.exists()
+								&& metaDataMap.get("destinationExists")
+										.toString().equalsIgnoreCase("error")) {
+							try {
+								System.out.println("enterd in error");
+								// have to update in db as file failed
 
-					if (destinationFileCheck.exists()
-							&& metaDataMap.get("destinationExists").toString()
-									.equalsIgnoreCase("overWrite")) {
-						System.out.println("enterd in over write");
-						// destinationFileCheck.delete();
-						FileUtils.forceDelete(destinationFileCheck);
-					} else if (destinationFileCheck.exists()
-							&& metaDataMap.get("destinationExists").toString()
-									.equalsIgnoreCase("error")) {
-						try {
-							System.out.println("enterd in error");
-							// have to update in db as file failed
-
-							throw new Exception(
-									"file already existed in target path please specify parameter as overwrite");
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							System.out.println("file existed already");
-							e.printStackTrace();
+								throw new Exception(
+										"file already existed in target path please specify parameter as overwrite");
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+								System.out.println("file existed already");
+								e.printStackTrace();
+							}
 						}
 					}
+
 					if (!destinationFileCheck.exists()) {
 						KafkaServerService kafkaServerService = new KafkaServerService();
 						kafkaServerService.setBROKER_PORT(0);

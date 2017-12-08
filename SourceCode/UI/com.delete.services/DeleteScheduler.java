@@ -9,7 +9,7 @@ public class DeleteScheduler {
 		if (schedulerName != null) {
 			cassandraInteracter.deletingSchedulerThread(
 					cassandraInteracter.connectCassandra(), schedulerName);
-			System.out.println(" updated  successfully");
+			System.out.println(" updated  successfully as deleted");
 		} else {
 			try {
 				throw new Exception("scheduler name should not be empty");

@@ -75,7 +75,6 @@ public class UserExitPoints {
 							transferMetaData);
 					System.out.println(result);
 				}
-
 			}
 		}
 		// catching the exception for ClassNotFoundException

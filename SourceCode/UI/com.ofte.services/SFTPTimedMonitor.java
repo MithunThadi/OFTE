@@ -82,7 +82,6 @@ public class SFTPTimedMonitor extends TimerTask {
 				System.out.println("delete the scheduler");
 				Thread.currentThread().sleep(pollTime);
 				Thread.currentThread().stop();
-
 			}
 		} catch (NoSuchFieldException e2) {
 			// TODO Auto-generated catch block
