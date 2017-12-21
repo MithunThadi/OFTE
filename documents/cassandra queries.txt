@@ -1,6 +1,11 @@
-CREATE TABLE Monitor(monitor_name text PRIMARY KEY,thread_status text,monitor_status text,current_timestamp text); 
+CREATE TABLE monitor(monitor_name text PRIMARY KEY,thread_status text,monitor_status text,current_timestamp text,poll_time text);
 
-CREATE TABLE monitor_transfer(transfer_id text PRIMARY KEY,job_name text,monitor_name text,source_file text,target_file text,transfer_status text,current_timestamp text);
+CREATE TABLE monitor_transfer(transfer_id text PRIMARY KEY,job_name text,source_file text,target_file text,transfer_status text,current_timestamp text);
 
 CREATE TABLE transfer_event(transfer_id text PRIMARY KEY,monitor_name text,producer_key text,consumer_key text,current_timestamp text);
- 
+
+CREATE TABLE monitor_metadata(monitor_name text PRIMARY KEY,metadata text);
+
+CREATE TABLE scheduler(scheduler_name text PRIMARY KEY,scheduler_status text,thread_status text);
+
+CREATE TABLE scheduler_metadata(scheduler_name text PRIMARY KEY,metadata text);
