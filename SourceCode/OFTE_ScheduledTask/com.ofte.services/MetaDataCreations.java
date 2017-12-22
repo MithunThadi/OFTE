@@ -271,7 +271,7 @@ public class MetaDataCreations {
 						int taskStatus = taskCreate.createTask(metaDataMap.get("monitorName"), pollTime);
 						
 						if (taskStatus==0) {
-							System.out.println("Task create Succefully");
+							System.out.println("Task create Succefully in if");
 							System.exit(0);
 						}else {
 							System.out.println("Failed To create Task");

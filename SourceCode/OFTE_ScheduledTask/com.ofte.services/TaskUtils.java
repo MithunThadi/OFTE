@@ -36,6 +36,7 @@ public class TaskUtils {
 		List<String> commands = new ArrayList<String>();
 		System.out.println("entered create Task ");
 		String taskFileName = taskFileNameCreator(taskName);
+		System.out.println("Task file name is "+taskFileName);
 		commands.add("schtasks.exe");
 		commands.add("/CREATE");
 		commands.add("/TN");
@@ -59,7 +60,7 @@ public class TaskUtils {
 		if (!taskName.isEmpty()) {
 			taskFileName = "D:\\OFTE_Pack\\bin\\"+taskName+".cmd";
 			FileWriter fileWriter = new FileWriter(new File(taskFileName));
-			fileWriter.write("@echo off\nset CUR_DIR=%cd%\njava -cp %CUR_DIR%\\OFTE.jar com.ofte.services.ofteprocessor "+taskName+"\nexit");
+			fileWriter.write("@echo off\nset CUR_DIR=%cd%\njava -cp D:\\OFTE_Pack\\bin\\OFTE.jar com.ofte.services.ofteprocessor "+taskName+"\nexit");
 			fileWriter.close();
 		}
 		
