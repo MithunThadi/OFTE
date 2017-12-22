@@ -1,0 +1,1 @@
+runjava -gt "D:\TEST\mntr\testdata.xml" -mn testdate_2017122100919 -jn test_122120170716 -pi 1 -pu minutes -dd D:\TEST\target\ D:\TEST\source\ -tr *.txt -trd *.txt -de overwrite -sfp *.txt -sd delete -dfp *.txt
