@@ -1,0 +1,31 @@
+runJava -mn fre -jn prakash -pi 5 -pu minutes -dd D:\Test\Destination D:\Test\Source -tr *.trg -trd *.txt -gt D:\Test\PythonMonitors\xmlfile2.xml -de overwrite -sfp *.txt -sd delete 
+
+
+For Monitor;;;;;;;::::::::::::::
+
+create monitor::::::::::::::
+runjava1 -mn test2 -jn open -pi 2 -pu minutes -dd D:\OFTE\Destination1 D:\OFTE\Source1 -tr *.txt -trd *.txt -gt D:\OFTE\xmlfile2.xml -de overwrite -sfp *.txt -sd leave -dfp *.txt
+
+One time transfer:::::::::::::::::::::::::
+
+runjava1  -jn open -pi 2 -pu minutes -dd D:\OFTE\Destination1 D:\OFTE\Source1 -tr *.txt -trd *.txt  -de overwrite -sfp *.txt -sd leave -dfp *.txt
+
+for Scheduler:::::::::::::::::::
+
+SftpAsDestination;;;:::::::::::::::::::
+
+runjava1 -sn SftpAsDestination -un root -pw iibwmq@2k16 -hi 192.168.1.228 -po 22 -sftp-d /tmp/often -jn open -pi 2 -pu minutes -dd D:\OFTE\Destination1 D:\OFTE\Source1 -tr *.txt -trd *.txt -de overwrite -sfp *.txt -sd leave -dfp *.txt
+
+SftpAsSource;;;:::::::::::::
+
+runjava1 -sn SftpAsSource -un root -pw iibwmq@2k16 -hi 192.168.1.228 -po 22 -sftp-s /tmp/often -jn open -pi 2 -pu minutes -dd D:\OFTE\Destination1 D:\OFTE\Source1 -tr *.txt -trd *.txt -de overwrite -sfp *.txt -sd leave -dfp *.txt
+
+In Linux:::::::::::::::::::;2
+
+For monitor;;:::::::::::
+
+bash runjava1.sh -mn test12 -jn open -pi 2 -pu minutes -dd /ofte/Destination /ofte/Source -tr *.txt -trd *.txt -gt /ofte/logs/xmlFile.xml -de overwrite -sfp *.txt -sd leave -dfp *.txt
+
+One time transfer::::::::::
+
+bash runjava1.sh  -jn open -pi 2 -pu minutes -dd /ofte/Destination /ofte/Source -tr *.txt -trd *.txt  -de overwrite -sfp *.txt -sd leave -dfp *.txt
