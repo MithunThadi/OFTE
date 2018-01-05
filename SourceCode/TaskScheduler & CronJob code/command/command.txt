@@ -1,0 +1,1 @@
+bash runjava1.sh -mn test1 -jn open -pi 2 -pu minutes -dd /ofte/Destination /ofte/Source -tr *.txt -trd *.txt -gt /ofte/logs/xmlFile.xml -de overwrite -sfp *.txt -sd leave -dfp *.txt
