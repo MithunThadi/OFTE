@@ -1,4 +1,4 @@
-package com.ofte.services;
+package com.ofte.kafka.services;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,6 +9,8 @@ import java.util.Properties;
 import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.ZkConnection;
 import org.codehaus.plexus.util.FileUtils;
+
+import com.ofte.file.services.LoadProperties;
 
 //import com.ofte.services.LoadProperties;
 //import com.ofte.zookeeper.services.ZookeeperServerService;
