@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>HomePage</title>
+<style>
+#ofte {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#ofte td, #ofte th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#ofte tr:nth-child(even){background-color: #f2f2f2;}
+
+#ofte tr:hover {background-color: #ddd;}
+
+#ofte th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #4CAF50;
+    color: white;
+}
+</style>
+</head>
+<body>
+<table id="ofte">
+<tr>
+<td>
+<h1 style="text-align:center;">OFTE EXPLORER</h1>
+</td>
+</tr>
+  <tr>
+   <td>
+     <a href="http://localhost:8080/OFTE_UI/Open_OFTE_Monitor_TableDataPages.jsp" target="_self">MONITORS</a><br><br />
+     <a href="http://localhost:8080/OFTE_UI/Open_OFTE_TransferData_Pages.html" target="_self">TRANSFERS</a><br><br />
+     <a href="http://localhost:8080/OFTE_UI/Open_OFTE_Monitor_TransferTable_StatusPages.jsp" target="_self">TRASFER LOGS</a><br><br />
+     <a href="http://localhost:8080/OFTE_UI/Open_OFTE_Scheduler_TablePages.jsp" target="_self">SCHEDULED TRANSFERS</a><br><br />
+     <a href="http://localhost:8080/OFTE_UI/Open_OFTE_Delete_Monitor.jsp" target="_self">DELETE MONITOR</a><br><br />
+     <a href="http://localhost:8080/OFTE_UI/Open_OFTE_Delete_Scheduler.jsp" target="_self">DELETE SCHEDULER</a><br><br />
+    </td>
+  </tr>
+</table>
+</body>
+</html>

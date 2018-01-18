@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>OneTimeTransferPage</title>
+<style>
+body {
+font-family:sans-serif;
+font-weight:normal;
+margin:10px;
+color:black;
+background-color:#eee;
+}
+#ofte {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#ofte td, #ofte th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#ofte tr:nth-child(even){background-color: #f2f2f2;}
+
+#ofte tr:hover {background-color: #ddd;}
+
+#ofte th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #4CAF50;
+    color: white;
+}
+#button {
+    width: 15em;
+    border: 2px solid black;
+    background: #4c84af;
+    border-radius: 5px;
+}
+
+#button1 {
+	float: right;
+    width: 10em;
+    border: 2px solid black;
+    background: #4c84af;
+    border-radius: 5px;
+}
+a {
+    display: block;
+    width: 100%;
+    line-height: 2em;
+    text-align: center;
+    color:white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+a:hover {
+    color: black;
+    background: #eff;
+}
+fieldset {
+    width: 90%;
+    padding:20px;
+    border-radius:3px;
+	border:1px solid #D1D3D4
+   
+}
+div{
+clear:both;
+margin:0 25px;
+}
+label
+{
+background-color:#3177b4;
+color:white;
+width:200px;
+border-radius:3px;
+border:1px solid #D1D3D4
+padding:20px;
+}
+label
+{
+width:200px;
+border-radius:3px;
+border:1px solid #D1D3D4
+padding:20px;
+}
+form {
+	
+	background-color:#fefefe;
+	margin:2% auto 15% auto;
+	border:5px solid #888;
+	width:100%;
+}
+	.labelClass
+{
+background-color:#3177b4;
+color:white;
+}
+.modal
+{
+display:none;
+position:fixed;
+z-index:100;
+left:0;
+top:0;
+width:10%;
+height:100%;
+overflow:auto;
+background-color:white;
+padding-top:60px;
+}
+.modal-content
+{
+background-color:#fefefe;
+margin:2% auto 15% auto;
+border:5px solid #888;
+width:90%;
+}
+
+</style>
+</head>
+<body>
+<table id="ofte">
+  <tr>
+    <td>
+      <h1 style="text-align:center;">OFTE EXPLORER</h1>
+      <div id="button1"><a href="http://localhost:8080/OFTE_UI/Open_OFTE_TransferData_Pages.html">GO BACK</a></div>
+    </td>
+    </tr>
+    </table>
+<fieldset>		
+<form name="form" id="form" class="modal-content" method="post" action="OneTimeTransfer">
+<div>
+<fieldset>
+<label for="Job Name">Job Name:</label><input type="text" name="jname"> <br><br />
+</fieldset>
+</div>
+
+<div>
+<fieldset>
+<legend>Source Details</legend>
+<label for="Source Directory">Source Directory:</label><input type="text" name="sd"> <br><br />
+<label for="Source File Pattern">Source File Pattern:</label><input type="text" name="sfp"><br><br />
+<label for="Source Trigger Pattern">Source Trigger Pattern:</label><input type="text" name="stp"> <br><br />
+</fieldset>
+</div>
+
+<div>
+<fieldset>
+<legend>Destination Details</legend>
+<label for="Destination Directory">Destination Directory:</label><input type="text" name="dd"><br><br />
+<label for="Destination File Pattern">Destination File Pattern:</label><input type="text" name="dfp"><br><br />
+<label for="Destination Trigger Pattern">Destination Trigger Pattern:</label><input type="text" name="dtp"><br><br />
+</fieldset>
+</div>
+<br></br>
+<label for="MonitorOverWrite">Monitor Overwrite</label>
+  
+<select name="monitorOverwrite">
+<option selected="" value="Default">Select</option>
+<option> Yes</option>
+<option> No</option>
+
+</select>
+<br><br />
+
+<input type="submit" value="submit" />
+
+</form>
+</fieldset>
+</body>
+</html>
